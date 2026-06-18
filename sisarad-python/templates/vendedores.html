@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import "partials/pagination.html" as pag %}
+{% import "partials/actions_menu.html" as actions %}
+{% block title %}Vendedores — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Vendedores</h1>
+  {% include "partials/alerts.html" %}
+  <div class="toolbar">
+    <form method="get" action="/vendedores" class="toolbarForm">
+      <input class="searchInput" type="search" name="q" placeholder="Buscar vendedor..." value="{{ search }}">
+      <button type="submit" class="buttonSecondary">Buscar</button>
+    </form>
+    <a href="/vendedores?nuevo=1" class="buttonPrimary">Nuevo vendedor</a>
+  </div>
+  <div class="panel">
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Nombre</th><th>Empleado</th><th>Trabajos</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          {% for item in paged.records %}
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.num_empleado }}</td>
+            <td>{{ item.trabajos_realizados }}</td>
+            <td><span class="badge {% if item.estado == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado }}</span></td>
+            <td class="actionCell">
+              {{ actions.render('/vendedores', item.id, list_qs, '¿Eliminar vendedor?') }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="emptyRow">No hay vendedores</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pag.render(paged, '/vendedores', search) }}
+  </div>
+</div>
+{% if show_create %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Nuevo vendedor</h2>
+  <form method="post" action="/vendedores/crear" class="formGrid">
+    <label>Nombre <input name="nombre" required></label>
+    <label>Nº empleado <input name="num_empleado" required></label>
+    <label>Trabajos realizados <input name="trabajos_realizados"></label>
+    <label>Estado <select name="estado"><option>ACTIVO</option><option>INACTIVO</option></select></label>
+    <div class="modalActions"><a href="/vendedores" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% if view_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Ver vendedor</h2>
+  <div class="detailGrid">
+    <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Nº empleado</span><span class="detailValue">{{ view_item.num_empleado }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Trabajos realizados</span><span class="detailValue">{{ view_item.trabajos_realizados or '-' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado }}</span></div>
+  </div>
+  <div class="modalActions">
+    <a href="/vendedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    <a href="/vendedores?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+  </div>
+</div></div>
+{% endif %}
+{% if edit_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Editar vendedor</h2>
+  <form method="post" action="/vendedores/{{ edit_item.id }}/actualizar" class="formGrid">
+    <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>Nº empleado <input name="num_empleado" value="{{ edit_item.num_empleado }}" required></label>
+    <label>Trabajos realizados <input name="trabajos_realizados" value="{{ edit_item.trabajos_realizados }}"></label>
+    <label>Estado <select name="estado"><option {% if edit_item.estado=='ACTIVO' %}selected{% endif %}>ACTIVO</option><option {% if edit_item.estado=='INACTIVO' %}selected{% endif %}>INACTIVO</option></select></label>
+    <div class="modalActions"><a href="/vendedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% endblock %}

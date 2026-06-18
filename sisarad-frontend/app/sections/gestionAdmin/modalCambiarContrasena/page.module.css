@@ -1,0 +1,160 @@
+/* GestionContrasenas/page.module.css */
+.containerGestion {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.accesoDenegado {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    padding: 50px;
+}
+/* ... estilos de tabla, search, etc. */
+/*
+ * Archivo: page.module.css
+ * Estilos para el ModalCambiarContrasena
+ */
+
+/* ========================================= */
+/* 1. Overlay y Contenedor Principal */
+/* ========================================= */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+    
+    font-family:"Open Sans", sans-serif;
+}
+
+.modalContent {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 450px;
+    /* Usando una sombra similar a la de las cards de tu ejemplo */
+    box-shadow: 0 10px 25px rgba(2, 6, 23, 0.4); 
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalContent h2 {
+    font-size: 1.4rem;
+    color: #0b3d6b; /* Color principal de tu tabla */
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* ========================================= */
+/* 2. Formulario y Grupos */
+/* ========================================= */
+
+.formGroup {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.4rem;
+}
+
+.formGroup input {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formGroup input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* ========================================= */
+/* 3. Contenedor de Botones */
+/* ========================================= */
+
+.buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.buttonContainer button {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+/* Botón principal (Cambiar Contraseña) - Color de acción */
+.buttonContainer button:first-child {
+    background-color: #0b3d6b; /* Un color fuerte de tu tema */
+    color: white;
+}
+
+.buttonContainer button:first-child:hover:not(:disabled) {
+    background-color: #072a4b;
+}
+
+/* Botón secundario (Cancelar) - Estilo sutil */
+.buttonContainer button:last-child {
+    background-color: #e2e8f0;
+    color: #475569;
+}
+
+.buttonContainer button:last-child:hover:not(:disabled) {
+    background-color: #cbd5e1;
+}
+
+/* Estilo para el estado deshabilitado (cargando) */
+.buttonContainer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 480px) {
+    .modalContent {
+        padding: 1.5rem;
+    }
+    .buttonContainer {
+        flex-direction: column;
+    }
+    .buttonContainer button {
+        padding: 0.6rem;
+    }
+}

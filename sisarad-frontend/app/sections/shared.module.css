@@ -1,0 +1,357 @@
+.page {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-md) var(--container-padding) var(--space-lg);
+  font-family: "Open Sans", sans-serif;
+}
+
+.title {
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  color: #002060;
+  margin: 0 0 1rem 0;
+  line-height: 1.25;
+}
+
+.subtitle {
+  color: #475569;
+  margin: 0 0 1.5rem 0;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  line-height: 1.5;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.cardLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #002060;
+  margin-bottom: 0.5rem;
+  line-height: 1.35;
+}
+
+.cardValue {
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-weight: 700;
+  color: #1e293b;
+  word-break: break-word;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.panelHighlight {
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  align-items: stretch;
+}
+
+.searchInput {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.buttonPrimary,
+.buttonSecondary,
+.buttonDanger {
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.buttonPrimary {
+  background: #002060;
+  color: #fff;
+}
+
+.buttonSecondary {
+  background: #475569;
+  color: #fff;
+}
+
+.buttonDanger {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  background: #f1f5f9;
+  color: #002060;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.table td {
+  font-size: 0.9rem;
+}
+
+.actionCell {
+  min-width: 140px;
+}
+
+.actionCell button {
+  margin: 0 0.25rem 0.25rem 0;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 520px;
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+}
+
+.formGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.formGrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.formGrid input,
+.formGrid select {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badgeActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badgeInactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.authFallback {
+  padding: 2rem;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.paginationButton {
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #002060;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.paginationButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  color: #475569;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.emptyRow {
+  text-align: center;
+  color: #64748b;
+  padding: 1.5rem;
+}
+
+.formError {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+@media (max-width: 992px) {
+  .cardGrid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-sm) var(--container-padding) var(--space-lg);
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchInput {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .toolbar .buttonPrimary,
+  .toolbar .buttonSecondary,
+  .toolbar .buttonDanger {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .actionCell {
+    min-width: 110px;
+  }
+
+  .actionCell button {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.35rem 0;
+    font-size: 0.75rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .modal {
+    padding: 1rem;
+    max-height: 92dvh;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .modalActions button {
+    width: 100%;
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .paginationInfo {
+    width: 100%;
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .table {
+    min-width: 560px;
+  }
+
+  .title {
+    margin-bottom: 0.75rem;
+  }
+}

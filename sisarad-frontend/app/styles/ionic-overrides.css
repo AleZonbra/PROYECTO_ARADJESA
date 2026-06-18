@@ -1,0 +1,48 @@
+/* Ionic overrides and safe-area variables */
+:root {
+  /* Use the same font variable if provided by Next font setup; fallback to system */
+  --ion-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Respect device safe areas (iOS notch / Android status bar) */
+/* Avoid applying safe-area padding to the global body (IonContent handles this).
+  Applying it here caused extra spacing and layout issues when Ionic components
+  are nested inside Next.js layout. */
+
+/* If needed, components can use env(safe-area-inset-*) locally, for example:
+  .safe-area-top { padding-top: env(safe-area-inset-top); } */
+
+/* Override Ionic's .header-md defaults when present so our header keeps
+   the expected size, shadow and stickiness across platforms. Use !important
+   selectively because Ionic injects its own styles with similar specificity. */
+ion-header.header-md {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  -webkit-box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12) !important;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12) !important;
+  background: var(--ion-toolbar-background, #3b82f6) !important;
+}
+
+/* Ensure the toolbar inside the header has consistent height and aligns children */
+ion-header.header-md ion-toolbar,
+ion-header ion-toolbar {
+  height: var(--header-height) !important;
+  min-height: var(--header-height) !important;
+  align-items: center !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+/* When our CSS module .header is applied to IonHeader, prefer its styles but keep safe-area handling */
+ion-header.header-md.header,
+ion-header.header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Minor tweaks to match existing theme tokens */
+.ion-toolbar {
+  --background: transparent;
+}

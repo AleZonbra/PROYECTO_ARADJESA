@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import "partials/pagination.html" as pag %}
+{% import "partials/actions_menu.html" as actions %}
+{% block title %}Clientes — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Clientes</h1>
+  {% include "partials/alerts.html" %}
+  <div class="toolbar">
+    <form method="get" action="/clientes" class="toolbarForm">
+      <input class="searchInput" type="search" name="q" placeholder="Buscar cliente..." value="{{ search }}">
+      <button type="submit" class="buttonSecondary">Buscar</button>
+    </form>
+    <a href="/clientes?nuevo=1" class="buttonPrimary">Nuevo cliente</a>
+  </div>
+  <div class="panel">
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Dirección</th><th>Acciones</th></tr></thead>
+        <tbody>
+          {% for item in paged.records %}
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.telefono }}</td>
+            <td>{{ item.correo }}</td>
+            <td>{{ item.direccion }}</td>
+            <td class="actionCell">
+              {{ actions.render('/clientes', item.id, list_qs, '¿Eliminar cliente?') }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="emptyRow">No hay clientes</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pag.render(paged, '/clientes', search) }}
+  </div>
+</div>
+{% if show_create %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Nuevo cliente</h2>
+  <form method="post" action="/clientes/crear" class="formGrid">
+    <label>Nombre <input name="nombre" required></label>
+    <label>Teléfono <input name="telefono" required></label>
+    <label>Correo <input name="correo" type="email" required></label>
+    <label>Dirección <input name="direccion" required></label>
+    <div class="modalActions"><a href="/clientes" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% if view_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Ver cliente</h2>
+  <div class="detailGrid">
+    <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Teléfono</span><span class="detailValue">{{ view_item.telefono }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Correo</span><span class="detailValue">{{ view_item.correo }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Dirección</span><span class="detailValue">{{ view_item.direccion }}</span></div>
+  </div>
+  <div class="modalActions">
+    <a href="/clientes{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    <a href="/clientes?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+  </div>
+</div></div>
+{% endif %}
+{% if edit_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Editar cliente</h2>
+  <form method="post" action="/clientes/{{ edit_item.id }}/actualizar" class="formGrid">
+    <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>Teléfono <input name="telefono" value="{{ edit_item.telefono }}" required></label>
+    <label>Correo <input name="correo" type="email" value="{{ edit_item.correo }}" required></label>
+    <label>Dirección <input name="direccion" value="{{ edit_item.direccion }}" required></label>
+    <div class="modalActions"><a href="/clientes{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% endblock %}

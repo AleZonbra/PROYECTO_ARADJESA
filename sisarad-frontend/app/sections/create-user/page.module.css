@@ -1,0 +1,294 @@
+/* ------------------------------------------- */
+/* Estilos Base (Desktop) */
+/* ------------------------------------------- */
+
+.containerCreateUser{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 70%;
+    min-height: calc(100vh - 120px);
+    padding: 2rem 1rem 3rem;
+    background: radial-gradient(circle at top, #ffffff 8%, #f8f9ff 100%);
+}
+
+.formCreateUser{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: min(720px, 96%);
+    padding: 32px 28px;
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(15,23,42,0.06);
+}
+
+.formCreateUser{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    max-width: 96%;
+    background-color: #ffffff;
+    padding: 32px 28px;
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(15,23,42,0.06);
+}
+
+.containerLabelInput{
+    width: 48%; /* Ocupa casi la mitad del contenedor para dos columnas */
+    /* Quitamos el text-align: center para mejor estética en formularios */
+    text-align: left; 
+}
+
+.containerInputsCreateUser label{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4px;
+    width: 100%; /* Aseguramos que la etiqueta ocupe su 48% */
+}
+
+.containerInputsCreateUser label span{
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.containerInputsCreateUser input{
+    padding: 12px 14px;
+    border: 1px solid rgba(15,23,42,0.08);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.passwordContainer {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.passwordContainer input {
+    width: 100%;
+}
+
+.togglePassword {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-70%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+    /* Ajuste para que no interfiera con el input */
+    padding: 5px; 
+}
+
+.strengthBarContainer {
+    width: 100%;
+    height: 5px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+.strengthBar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.buttonCreateUser{
+    width: 50%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.buttonCreateUser:hover{
+    background-color: #45a049;
+}
+
+.linkRegister{
+    margin-top: 15px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.linkRegister:hover{
+    text-decoration: underline;
+}
+
+.error {
+    color: red;
+    margin-top: 5px;
+    font-size: 14px;
+    width: 100%; /* Asegurar que el error ocupe el espacio */
+    text-align: left;
+}
+
+/* ------------------------------------------- */
+/* Estilos para el Modal (sin cambios significativos, ya es responsive) */
+/* ------------------------------------------- */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modalInput {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modalButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.modalButton:hover {
+    background-color: #45a049;
+}
+
+
+/* ------------------------------------------- */
+/* Estilos para Teléfonos Móviles (max-width: 768px) */
+/* ------------------------------------------- */
+@media (max-width: 768px) {
+    
+    .containerCreateUser {
+        /* Permitimos que el contenedor ocupe la altura necesaria y eliminamos la posición absoluta 
+           si no está en el layout principal para mejor scroll en móvil. */
+        position: relative;
+        top: 0;
+        height: auto;
+        padding: 20px 0; /* Agregamos padding superior/inferior si es necesario */
+    }
+
+    .formCreateUser {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(120deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 12px;
+        font-weight: 600;
+        transition: transform 0.12s ease, box-shadow 0.15s ease;
+    .containerInputsCreateUser {
+        flex-direction: column; /* Apilamos los campos verticalmente */
+        gap: 0; /* Eliminamos el gap ya que los campos ocuparán el 100% */
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(5,150,105,0.15);
+
+    .containerLabelInput {
+        width: 100%; /* Hacemos que cada campo ocupe todo el ancho */
+        margin-bottom: 10px; /* Agregamos espacio entre campos */
+        text-align: left;
+    }
+
+        .formCreateUser {
+            width: 95%; /* Ocupa casi todo el ancho del móvil */
+            padding: 18px; /* Reducimos el padding del formulario */
+            box-shadow: none; /* Quitamos sombras para un aspecto más limpio */
+        }
+
+    /* Fixed width only on larger viewports */
+    @media (min-width: 1024px) {
+        .formCreateUser {
+            width: 640px;
+            margin: 0 auto;
+        }
+    }
+    .containerInputsCreateUser input {
+        /* Aseguramos que el input dentro del 100% de .containerLabelInput tenga ancho completo */
+        width: 100%; 
+        margin-bottom: 10px; /* Ajuste para mejor espaciado */
+    }
+    
+    /* Ajustamos el botón de alternar visibilidad de contraseña */
+    .togglePassword {
+        /* Subimos un poco el icono ya que el margen del input es menor en móvil */
+        transform: translateY(-60%); 
+    }
+
+    .strengthBarContainer {
+        margin-bottom: 10px;
+    }
+
+    .error {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    .buttonCreateUser {
+        width: 100%; /* El botón ocupa todo el ancho */
+        font-size: 15px;
+        padding: 12px;
+    }
+    
+    .linkRegister {
+        font-size: 13px;
+    }
+}}}

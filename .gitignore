@@ -1,3 +1,10 @@
 .venv/
-__pycache__/ 
+sisarad-python/.venv/
+sisarad-python/data/
+legacy/
+sisarad-backend/sisarad/data/
+sisarad-backend/sisarad/target/
+sisarad-frontend/node_modules/
+sisarad-frontend/.next/
+__pycache__/
 *.db

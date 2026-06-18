@@ -1,0 +1,168 @@
+.container {
+  width: 100%;
+}
+
+.title {
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.description {
+  color: #475569;
+  margin: 0 0 1.5rem 0;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterGroup label {
+  font-weight: 500;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.filterGroup select,
+.filterGroup input {
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: "Open Sans", sans-serif;
+}
+
+.filterGroup select:focus,
+.filterGroup input:focus {
+  outline: none;
+  border-color: #0b3d6b;
+  box-shadow: 0 0 0 3px rgba(11, 61, 107, 0.1);
+}
+
+.loading,
+.error {
+  padding: 1rem;
+  text-align: center;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.loading {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.error {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.resultado {
+  margin-top: 1rem;
+}
+
+.card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.card h3 {
+  margin: 0 0 1.5rem 0;
+  color: #0f172a;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.metricaPrincipal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #0b3d6b;
+  color: #ffffff;
+  border-radius: 6px;
+  grid-column: 1 / -1;
+}
+
+.metricaLabel {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.metricaPrincipal .metricaLabel {
+  color: #e2e8f0;
+}
+
+.metricaValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.metricaPrincipal .metricaValue {
+  color: #ffffff;
+  font-size: 2rem;
+}
+
+.resumen {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.resumen p {
+  margin: 0 0 0.5rem 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.resumen p:last-child {
+  margin-bottom: 0;
+}
+
+.detalle {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .metricas {
+    grid-template-columns: 1fr;
+  }
+
+  .metricaPrincipal {
+    grid-column: 1;
+  }
+}

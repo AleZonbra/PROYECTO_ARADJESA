@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Inicio — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Panel de control</h1>
+  <p class="subtitle">Resumen semanal de operaciones</p>
+  {% include "partials/alerts.html" %}
+
+  <div class="cardGrid">
+    <div class="card">
+      <div class="cardLabel">Unidades movidas (semana)</div>
+      <div class="cardValue">{{ resumen.unidades_movidas_semana }}</div>
+    </div>
+    <div class="card">
+      <div class="cardLabel">Vendedores activos</div>
+      <div class="cardValue">{{ resumen.vendedores_activos_semana }}</div>
+    </div>
+    <div class="card">
+      <div class="cardLabel">Clientes atendidos</div>
+      <div class="cardValue">{{ resumen.clientes_atendidos_semana }}</div>
+    </div>
+    <div class="card">
+      <div class="cardLabel">Despachos procesados</div>
+      <div class="cardValue">{{ resumen.despachos_procesados_semana }}</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="panelHighlight"><strong>Líder de ventas:</strong> {{ resumen.lider_ventas_semana }}</p>
+    <p class="panelHighlight"><strong>Producto más despachado:</strong> {{ resumen.producto_mas_despachado_semana }}</p>
+  </div>
+
+  <div class="panel">
+    <h2 class="sectionTitle">Productos próximos a vencer</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Lote</th>
+            <th>Stock</th>
+            <th>Vence</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in resumen.productos_proximos_vencer %}
+          <tr>
+            <td>{{ p.producto }}</td>
+            <td>{{ p.serial_lote }}</td>
+            <td>{{ p.cantidad }}</td>
+            <td>{{ p.fecha_expiracion }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="emptyRow">Sin productos registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% if msg %}
+<div class="alert alertSuccess">{{ msg|replace('+', ' ') }}</div>
+{% endif %}
+{% if error %}
+<div class="alert alertError">{{ error|replace('+', ' ') }}</div>
+{% endif %}

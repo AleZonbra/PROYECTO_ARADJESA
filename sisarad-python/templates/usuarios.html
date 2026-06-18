@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% import "partials/pagination.html" as pag %}
+{% import "partials/actions_menu.html" as actions %}
+{% block title %}Usuarios — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Usuarios del sistema</h1>
+  <p class="subtitle">Gestión de todos los usuarios y roles del sistema</p>
+  {% include "partials/alerts.html" %}
+  <div class="toolbar">
+    <form method="get" action="/usuarios" class="toolbarForm">
+      <input class="searchInput" type="search" name="q" placeholder="Buscar usuario o nombre..." value="{{ search }}">
+      <button type="submit" class="buttonSecondary">Buscar</button>
+    </form>
+    <a href="/usuarios?nuevo=1" class="buttonPrimary">Nuevo usuario</a>
+  </div>
+
+  <div class="panel">
+    <div class="tableWrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in paged.records %}
+          <tr>
+            <td>{{ item.usuario }}</td>
+            <td>{{ item.nombre }}</td>
+            <td>
+              {% if item.role == 'administrador_sistema' %}
+              Administrador del Sistema
+              {% elif item.role == 'encargado_negocio' %}
+              Encargado de Negocio
+              {% else %}
+              {{ item.role }}
+              {% endif %}
+            </td>
+            <td><span class="badge {% if item.activo %}badgeActive{% else %}badgeInactive{% endif %}">{{ 'ACTIVO' if item.activo else 'INACTIVO' }}</span></td>
+            <td class="actionCell">
+              {{ actions.render('/usuarios', item.id, list_qs, '¿Eliminar usuario?') }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="emptyRow">No hay usuarios registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pag.render(paged, '/usuarios', search) }}
+  </div>
+</div>
+
+{% if show_create %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Nuevo usuario</h2>
+  <form method="post" action="/usuarios/crear" class="formGrid">
+    <label>Usuario (login) <input name="usuario" required autocomplete="off" placeholder="ej: operaciones"></label>
+    <label>Nombre completo <input name="nombre" required></label>
+    <label>Contraseña <input name="clave" type="password" required autocomplete="new-password"></label>
+    <label>Rol
+      <select name="role" required>
+        <option value="administrador_sistema">Administrador del Sistema</option>
+        <option value="encargado_negocio">Encargado de Negocio</option>
+      </select>
+    </label>
+    <label>Estado
+      <select name="activo">
+        <option value="ACTIVO">ACTIVO</option>
+        <option value="INACTIVO">INACTIVO</option>
+      </select>
+    </label>
+    <div class="modalActions"><a href="/usuarios" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
+  </form>
+</div></div>
+{% endif %}
+
+{% if view_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Ver usuario</h2>
+  <div class="detailGrid">
+    <div class="detailRow"><span class="detailLabel">Usuario</span><span class="detailValue">{{ view_item.usuario }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Contraseña</span><span class="detailValue">••••••••</span></div>
+    <div class="detailRow"><span class="detailLabel">Rol</span><span class="detailValue">{% if view_item.role == 'administrador_sistema' %}Administrador del Sistema{% elif view_item.role == 'encargado_negocio' %}Encargado de Negocio{% else %}{{ view_item.role }}{% endif %}</span></div>
+    <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ 'ACTIVO' if view_item.activo else 'INACTIVO' }}</span></div>
+  </div>
+  <div class="modalActions">
+    <a href="/usuarios{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    <a href="/usuarios?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+  </div>
+</div></div>
+{% endif %}
+
+{% if edit_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Editar usuario</h2>
+  <form method="post" action="/usuarios/{{ edit_item.id }}/actualizar" class="formGrid">
+    <label>Usuario (login)
+      <input value="{{ edit_item.usuario }}" disabled>
+    </label>
+    <label>Nombre completo <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>Nueva contraseña <input name="clave" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiar"></label>
+    <label>Rol
+      <select name="role" required>
+        <option value="administrador_sistema" {% if edit_item.role == 'administrador_sistema' %}selected{% endif %}>Administrador del Sistema</option>
+        <option value="encargado_negocio" {% if edit_item.role == 'encargado_negocio' %}selected{% endif %}>Encargado de Negocio</option>
+      </select>
+    </label>
+    <label>Estado
+      <select name="activo">
+        <option value="ACTIVO" {% if edit_item.activo %}selected{% endif %}>ACTIVO</option>
+        <option value="INACTIVO" {% if not edit_item.activo %}selected{% endif %}>INACTIVO</option>
+      </select>
+    </label>
+    <div class="modalActions"><a href="/usuarios{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% endblock %}

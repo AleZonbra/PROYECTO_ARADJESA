@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import "partials/pagination.html" as pag %}
+{% import "partials/actions_menu.html" as actions %}
+{% block title %}Proveedores — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Proveedores</h1>
+  {% include "partials/alerts.html" %}
+  <div class="toolbar">
+    <form method="get" action="/proveedores" class="toolbarForm">
+      <input class="searchInput" type="search" name="q" placeholder="Buscar proveedor..." value="{{ search }}">
+      <button type="submit" class="buttonSecondary">Buscar</button>
+    </form>
+    <a href="/proveedores?nuevo=1" class="buttonPrimary">Nuevo proveedor</a>
+  </div>
+  <div class="panel">
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Empresa</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          {% for item in paged.records %}
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.telefono }}</td>
+            <td>{{ item.empresa }}</td>
+            <td><span class="badge {% if item.estado == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado }}</span></td>
+            <td class="actionCell">
+              {{ actions.render('/proveedores', item.id, list_qs, '¿Eliminar proveedor?') }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="emptyRow">No hay proveedores</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pag.render(paged, '/proveedores', search) }}
+  </div>
+</div>
+{% if show_create %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Nuevo proveedor</h2>
+  <form method="post" action="/proveedores/crear" class="formGrid">
+    <label>Nombre <input name="nombre" required></label>
+    <label>Teléfono <input name="telefono" required></label>
+    <label>Empresa <input name="empresa" required></label>
+    <label>Estado <select name="estado"><option>ACTIVO</option><option>INACTIVO</option></select></label>
+    <div class="modalActions"><a href="/proveedores" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% if view_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Ver proveedor</h2>
+  <div class="detailGrid">
+    <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Teléfono</span><span class="detailValue">{{ view_item.telefono }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Empresa</span><span class="detailValue">{{ view_item.empresa }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado }}</span></div>
+  </div>
+  <div class="modalActions">
+    <a href="/proveedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    <a href="/proveedores?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+  </div>
+</div></div>
+{% endif %}
+{% if edit_item %}
+<div class="modalOverlay"><div class="modal">
+  <h2>Editar proveedor</h2>
+  <form method="post" action="/proveedores/{{ edit_item.id }}/actualizar" class="formGrid">
+    <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>Teléfono <input name="telefono" value="{{ edit_item.telefono }}" required></label>
+    <label>Empresa <input name="empresa" value="{{ edit_item.empresa }}" required></label>
+    <label>Estado <select name="estado"><option {% if edit_item.estado=='ACTIVO' %}selected{% endif %}>ACTIVO</option><option {% if edit_item.estado=='INACTIVO' %}selected{% endif %}>INACTIVO</option></select></label>
+    <div class="modalActions"><a href="/proveedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
+  </form>
+</div></div>
+{% endif %}
+{% endblock %}

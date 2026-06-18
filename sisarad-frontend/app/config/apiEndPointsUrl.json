@@ -1,0 +1,49 @@
+{
+  "user": {
+    "obtenerUsuarioPorUsuario": "http://localhost:8080/usuarios/search?usuario={usuario}",
+    "listarUsuarios": "http://localhost:8080/usuarios/getAll",
+    "crearUsuario": "http://localhost:8080/usuarios/create",
+    "actualizarUsuario": "http://localhost:8080/usuarios/update/{id}",
+    "eliminarUsuario": "http://localhost:8080/usuarios/delete/{id}"
+  },
+  "productos": {
+    "listar": "http://localhost:8080/productos/getAll",
+    "obtenerPorId": "http://localhost:8080/productos/getById?id={id}",
+    "crear": "http://localhost:8080/productos/create",
+    "actualizar": "http://localhost:8080/productos/update/{id}",
+    "eliminar": "http://localhost:8080/productos/delete/{id}"
+  },
+  "vendedores": {
+    "listar": "http://localhost:8080/vendedores/getAll",
+    "obtenerPorId": "http://localhost:8080/vendedores/getById?id={id}",
+    "crear": "http://localhost:8080/vendedores/create",
+    "actualizar": "http://localhost:8080/vendedores/update/{id}",
+    "alternarEstado": "http://localhost:8080/vendedores/alternarEstado/{id}",
+    "eliminar": "http://localhost:8080/vendedores/delete/{id}"
+  },
+  "proveedores": {
+    "listar": "http://localhost:8080/proveedores/getAll",
+    "obtenerPorId": "http://localhost:8080/proveedores/getById?id={id}",
+    "crear": "http://localhost:8080/proveedores/create",
+    "actualizar": "http://localhost:8080/proveedores/update/{id}",
+    "alternarEstado": "http://localhost:8080/proveedores/alternarEstado/{id}",
+    "eliminar": "http://localhost:8080/proveedores/delete/{id}"
+  },
+  "clientes": {
+    "listar": "http://localhost:8080/clientes/getAll",
+    "obtenerPorId": "http://localhost:8080/clientes/getById?id={id}",
+    "crear": "http://localhost:8080/clientes/create",
+    "actualizar": "http://localhost:8080/clientes/update/{id}",
+    "eliminar": "http://localhost:8080/clientes/delete/{id}"
+  },
+  "movimientos": {
+    "listar": "http://localhost:8080/movimientos/getAll",
+    "ultimo": "http://localhost:8080/movimientos/ultimo",
+    "crear": "http://localhost:8080/movimientos/create",
+    "actualizar": "http://localhost:8080/movimientos/update/{id}",
+    "eliminar": "http://localhost:8080/movimientos/delete/{id}"
+  },
+  "dashboard": {
+    "resumenSemanal": "http://localhost:8080/dashboard/resumenSemanal"
+  }
+}

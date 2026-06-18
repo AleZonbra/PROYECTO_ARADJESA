@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% import "partials/pagination.html" as pag %}
+{% import "partials/actions_menu.html" as actions %}
+{% block title %}Productos — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Productos</h1>
+  {% include "partials/alerts.html" %}
+  <div class="toolbar">
+    <form method="get" action="/productos" class="toolbarForm">
+      <input class="searchInput" type="search" name="q" placeholder="Buscar producto o lote..." value="{{ search }}">
+      <button type="submit" class="buttonSecondary">Buscar</button>
+    </form>
+    <a href="/productos?nuevo=1" class="buttonPrimary">Nuevo producto</a>
+  </div>
+
+  <div class="panel">
+    <div class="tableWrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Producto</th><th>Lote</th><th>Cantidad</th><th>Producción</th><th>Expiración</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in paged.records %}
+          <tr>
+            <td>{{ item.producto }}</td>
+            <td>{{ item.serial_lote }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.fecha_produccion }}</td>
+            <td>{{ item.fecha_expiracion }}</td>
+            <td class="actionCell">
+              {{ actions.render('/productos', item.id, list_qs, '¿Eliminar producto?') }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="emptyRow">No hay productos</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pag.render(paged, '/productos', search) }}
+  </div>
+</div>
+
+{% if show_create %}
+<div class="modalOverlay">
+  <div class="modal">
+    <h2>Nuevo producto</h2>
+    <form method="post" action="/productos/crear" class="formGrid">
+      <label>Producto <input name="producto" required></label>
+      <label>Lote <input name="serial_lote" required></label>
+      <label>Cantidad <input name="cantidad" type="number" min="0" value="0" required></label>
+      <label>Fecha producción <input name="fecha_produccion" placeholder="dd/mm/aaaa"></label>
+      <label>Fecha expiración <input name="fecha_expiracion" placeholder="dd/mm/aaaa"></label>
+      <div class="modalActions">
+        <a href="/productos" class="buttonSecondary">Cancelar</a>
+        <button type="submit" class="buttonPrimary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% if view_item %}
+<div class="modalOverlay">
+  <div class="modal">
+    <h2>Ver producto</h2>
+    <div class="detailGrid">
+      <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Producto</span><span class="detailValue">{{ view_item.producto }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Lote</span><span class="detailValue">{{ view_item.serial_lote }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Cantidad</span><span class="detailValue">{{ view_item.cantidad }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Fecha producción</span><span class="detailValue">{{ view_item.fecha_produccion or '-' }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Fecha expiración</span><span class="detailValue">{{ view_item.fecha_expiracion or '-' }}</span></div>
+    </div>
+    <div class="modalActions">
+      <a href="/productos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+      <a href="/productos?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if edit_item %}
+<div class="modalOverlay">
+  <div class="modal">
+    <h2>Editar producto</h2>
+    <form method="post" action="/productos/{{ edit_item.id }}/actualizar" class="formGrid">
+      <label>Producto <input name="producto" value="{{ edit_item.producto }}" required></label>
+      <label>Lote <input name="serial_lote" value="{{ edit_item.serial_lote }}" required></label>
+      <label>Cantidad <input name="cantidad" type="number" min="0" value="{{ edit_item.cantidad }}" required></label>
+      <label>Fecha producción <input name="fecha_produccion" value="{{ edit_item.fecha_produccion }}"></label>
+      <label>Fecha expiración <input name="fecha_expiracion" value="{{ edit_item.fecha_expiracion }}"></label>
+      <div class="modalActions">
+        <a href="/productos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a>
+        <button type="submit" class="buttonPrimary">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,243 @@
+/* Fonts */
+@font-face {
+  font-family: 'chetta-vissto';
+  src: local('ChettaVissto'), local('ChettaVissto'),
+    url('/fonts/ChettaVissto.woff') format('woff'),
+    url('/fonts/ChettaVissto.woff2') format('woff2'),
+    url('/fonts/ChettaVissto.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'leorio';
+  src: local('Leorio'), local('Leorio'),
+    url('/fonts/leorio.ttf') format('truetype');
+}
+
+/* Styles Home */
+.containerHome {
+  width: 100%;
+  height: auto;
+  padding: 2.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Open Sans", sans-serif;
+}
+
+.authFallback {
+  width: 100%;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-family: "Open Sans", sans-serif;
+  color: #0b3d6b;
+}
+
+.h2Home {
+
+  font-size: 1.35rem;
+
+  color: var(--accent);
+
+  margin: 0 0 1rem 0;
+
+  text-align: center;
+  max-width: 980px;
+
+  line-height: 1.2;
+}
+
+.listVehiculos {
+  width: 80%;
+  max-width: 980px;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  /* Agregamos scroll horizontal para tablas en móvil */
+  overflow-x: auto;
+}
+
+.listVehiculos h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  color: #102a43;
+  font-weight: 600;
+  text-align: center;
+}
+
+.listVehiculos table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  font-family: inherit;
+  font-size: 0.95rem;
+  /* Mantener un ancho mínimo razonable en desktop */
+  min-width: 600px;
+}
+
+.listVehiculos th {
+  text-align: center;
+  padding: 0.7rem 0.6rem;
+  color: #0b3d6b;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.listVehiculos td {
+  text-align: center;
+  padding: 0.65rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  color: #000000;
+}
+
+/* Pequeño ajuste estético */
+.containerHome a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.containerHome a:hover {
+  text-decoration: underline;
+}
+
+/* Estilos de Búsqueda y Título */
+
+.botonYTitulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.searchContainer {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.searchContainer input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.searchContainer input:focus {
+  border-color: #007bff;
+}
+
+
+/* ------------------------------------------- */
+/* Estilos para Teléfonos Móviles (Manteniendo la estructura de Tabla) */
+/* ------------------------------------------- */
+@media (max-width: 768px) {
+
+  /* Adaptación del encabezado (título + búsqueda) */
+  .botonYTitulo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+  }
+
+  .h2Home {
+    font-size: 1.05rem;
+  }
+
+  .listVehiculos {
+    width: 100%;
+    overflow-x: hidden;
+    /* Ocultamos el scroll horizontal que ya no necesitamos */
+    padding: 0.75rem;
+  }
+
+  /* 🚗 Estilos de la Tabla Adaptada a Móvil 🚗 */
+
+  .listVehiculos table {
+    border: none;
+    /* Quitamos el borde general de la tabla */
+    min-width: auto;
+    /* Permitimos que la tabla se encoja */
+    font-size: 0.85rem;
+    /* Reducimos ligeramente la fuente */
+  }
+
+  .listVehiculos thead {
+    display: none;
+    /* Ocultamos la cabecera (Placa, Marca, Modelo...) */
+  }
+
+  .listVehiculos tr {
+    border: 1px solid var(--border);
+    display: block;
+    /* Cada fila se comporta como un bloque (un "card") */
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+  }
+
+  .listVehiculos td {
+    /* Ocultamos los bordes de las celdas y las alineamos a la izquierda */
+    border: none;
+    text-align: left;
+    display: block;
+    /* Cada celda también es un bloque */
+    padding: 5px 0;
+    /* Padding vertical */
+    position: relative;
+    padding-left: 45%;
+    /* Espacio para la etiqueta */
+    font-size: 0.9rem;
+  }
+
+  /* 🏷️ Creamos la etiqueta a partir del data-label 🏷️ */
+  .listVehiculos td::before {
+    content: attr(data-label) ": ";
+    /* Usamos el valor del data-label como contenido */
+    position: absolute;
+    left: 10px;
+    width: 40%;
+    /* Ancho fijo para la etiqueta */
+    padding-right: 10px;
+    white-space: nowrap;
+    /* Evita que la etiqueta se rompa */
+    font-weight: bold;
+    color: var(--accent);
+  }
+
+  /* Ajuste para el mensaje "No hay vehículos..." */
+  .listVehiculos tr:has(td[colspan="4"]) {
+    display: table-row;
+    /* El mensaje de no resultados vuelve a ser una fila normal */
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  .listVehiculos tr:has(td[colspan="4"]) td {
+    display: table-cell;
+    text-align: center;
+    padding: 20px 0;
+    border: none;
+    padding-left: 0;
+    color: var(--muted);
+  }
+
+  .listVehiculos tr:has(td[colspan="4"]) td::before {
+    content: none;
+    /* Ocultamos la etiqueta del data-label en el mensaje de error */
+  }
+}

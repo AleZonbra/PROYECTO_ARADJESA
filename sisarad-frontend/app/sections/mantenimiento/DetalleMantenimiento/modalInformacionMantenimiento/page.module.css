@@ -1,0 +1,133 @@
+/* Fonts */
+@font-face {
+  font-family: "chetta-vissto";
+  src: local("ChettaVissto"), local("ChettaVissto"),
+    url("/fonts/ChettaVissto.woff") format("woff"),
+    url("/fonts/ChettaVissto.woff2") format("woff2"),
+    url("/fonts/ChettaVissto.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "leorio";
+  src: local("Leorio"), local("Leorio"),
+    url("/fonts/leorio.ttf") format("truetype");
+}
+
+/* Styles More Info Mantenimiento */
+.modalMoreInformationMantenimiento {
+
+  font-family: "Open Sans", sans-serif;
+}
+
+/* Style Buttons More */
+.buttonMore {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonMore:hover {
+  background-color: #2563eb;
+}
+
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal {
+  position: relative;
+  width: 720px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 20px 24px 24px 24px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cardVehiculo h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.cardVehiculo table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  overflow: hidden;
+}
+
+.cardVehiculo table thead th {
+  text-align: center;
+  padding: 0.7rem 0.6rem;
+  color: #0b3d6b;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(44, 19, 19);
+
+  border: 1px solid rgba(0, 0, 0, 0.308);
+  border-radius: 50%;
+}
+
+.cardVehiculo table tbody td {
+  text-align: center;
+  padding: 0.65rem 0.6rem;
+  /* border-bottom: 1px solid var(--border); */
+  border: 1px solid rgba(0, 0, 0, 0.308);
+  border-radius: 50%;
+  color: #000000;
+}
+
+
+
+/* Button delete */
+.buttonDelete {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonDelete:hover {
+  background-color: #c53030;
+}
+
+/* Mobile tweak */
+@media (max-width: 640px) {
+  .formVehiculo {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 16px;
+  }
+}

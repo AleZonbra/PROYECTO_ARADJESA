@@ -1,0 +1,546 @@
+/*
+ * Archivo: page.module.css
+ * Estilos para el componente GestionContrasenas
+ */
+
+/* ========================================= */
+/* Contenedor Principal y Tipografía */
+/* ========================================= */
+
+.containerGestion {
+    width: 100%;
+    padding: 2.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    font-family:"Open Sans", sans-serif;
+    min-height: 80vh; /* Para que se vea mejor en pantallas grandes */
+}
+
+.title {
+    font-size: 1.6rem;
+    margin: 0 0 0.5rem 0;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+}
+
+.paragraph {
+    color: #475569;
+    max-width: 880px;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+}
+
+.actionsRow {
+    width: 100%;
+    max-width: 920px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+}
+
+.buttonCreateUser {
+    background-color: #16a34a; /* Verde para acción positiva */
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.35);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.buttonCreateUser:hover {
+    background-color: #15803d;
+    transform: translateY(-1px);
+}
+
+.buttonCreateUser:active {
+    transform: translateY(0);
+
+}
+
+.accesoDenegado {
+    color: #c53030; /* Rojo para advertencia/denegación */
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 20px;
+    text-align: center;
+    margin-top: 15vh;
+}
+
+/* ========================================= */
+/* Contenedor de la Lista y Búsqueda */
+/* ========================================= */
+
+.listContainer {
+    width: 100%;
+    max-width: 920px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    /* Usando la sombra más fuerte de tu ejemplo de .listVehiculo */
+    box-shadow: 0 10px 18px rgba(2, 6, 23, 0.86); 
+    margin: 0.75rem 0;
+}
+
+.headerList {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap; /* Para manejo en responsive */
+}
+
+.headerList h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #0f172a;
+}
+
+.filtersRow {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-left: auto;
+}
+
+.searchContainer {
+    flex-grow: 1;
+    max-width: 320px;
+}
+
+.searchContainer input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.searchContainer input:focus {
+    border-color: #0b3d6b; /* Color de foco basado en tu .tableVehiculo thead */
+}
+
+.filterActivo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+}
+
+.filterActivo label {
+    color: #475569;
+    font-weight: 600;
+}
+
+.filterActivo select {
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.filterActivo select:focus {
+    border-color: #0b3d6b;
+}
+
+/* ========================================= */
+/* Tabla de Usuarios */
+/* ========================================= */
+
+.tableUsuarios {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.tableUsuarios thead th {
+    text-align: center;
+    padding: 0.7rem 0.6rem;
+    color: #0b3d6b;
+    font-weight: 600;
+    border-bottom: 2px solid #0b3d6b; /* Hice el borde inferior más notorio */
+    background-color: #f8f8f8; /* Fondo ligero para la cabecera */
+}
+
+.tableUsuarios tbody td {
+    text-align: center;
+    padding: 0.8rem 0.6rem;
+    border-bottom: 1px solid #eee;
+    color: #000000;
+}
+
+.tableUsuarios tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* Evita bordes redondos en la tabla si no son necesarios */
+.tableUsuarios, .tableUsuarios thead th, .tableUsuarios tbody td {
+    border-radius: 0; 
+    border: none; /* Elimina los bordes internos si usas solo border-bottom */
+}
+
+.tableUsuarios thead th:last-child {
+    width: 150px; /* Ancho fijo para la columna de acciones */
+}
+
+/* ========================================= */
+/* Botón de Acción */
+/* ========================================= */
+
+.buttonModify {
+    /* Estilo similar a tu .buttonPrint o un color de acción */
+    background-color: #3b82f6; 
+    color: white;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.1s;
+    white-space: nowrap;
+}
+
+.buttonToggle {
+    background-color: #e5e7eb;
+    color: #111827;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 0.3rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.buttonToggle:hover {
+    background-color: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.buttonDelete {
+    background-color: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 0.3rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.buttonDelete:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.estadoBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.estadoActivo {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.estadoInactivo {
+    background-color: #fee2e2;
+    color: #b91c1c;
+
+}
+
+.buttonModify:hover {
+    background-color: #2563eb; /* Azul más oscuro al pasar el ratón */
+    transform: translateY(-1px);
+}
+
+.buttonModify:active {
+    transform: translateY(0);
+}
+
+
+.adminKeySection {
+    width: 100%;
+    max-width: 920px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f4f8; /* Fondo más claro para distinguirse */
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.adminKeySection h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #0b3d6b;
+}
+
+.buttonAdminKey {
+    background-color: #f59e0b; /* Color amarillo/naranja para acciones sensibles */
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+
+.buttonAdminKey:hover {
+    background-color: #d97706; /* Naranja más oscuro al pasar el ratón */
+}
+
+.reportLogoSection {
+    width: 100%;
+    max-width: 920px;
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+    margin-bottom: 1.5rem;
+}
+
+.reportLogoSection h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.05rem;
+    color: #0b3d6b;
+}
+
+.reportLogoSection p {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+.reportLogoPreview {
+    max-height: 60px;
+    margin-bottom: 0.75rem;
+    object-fit: contain;
+}
+
+.reportLogoActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.buttonSaveLogo {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.buttonSaveLogo:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.buttonSaveLogo:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 768px) {
+
+    .adminKeySection {
+        flex-direction: column;
+        align-items: stretch; /* Estira los elementos para que el botón use el ancho completo */
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .adminKeySection h3 {
+        margin-bottom: 10px;
+        font-size: 1rem; /* Hacemos el título un poco más pequeño */
+    }
+
+    .buttonAdminKey {
+        width: 100%; /* Aseguramos que el botón use todo el ancho disponible */
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+
+    /* 📝 Ajuste del Título Principal del Componente (GestionContrasenas) */
+    .title {
+        font-size: 1.3rem; /* Título más pequeño para evitar desbordamiento */
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .paragraph {
+        padding: 0 10px;
+    }
+
+    /* 🔍 Ajuste de la Búsqueda */
+     .searchContainer input {
+        padding: 0.7rem 1rem;
+    }
+
+    /* 1. Reorganización del Encabezado */
+    .headerList {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .headerList h2 {
+        text-align: center;
+        margin-bottom: 5px;
+        font-size: 1.3rem;
+    }
+    
+    .searchContainer {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    /* 2. Adaptación de la Tabla a Tarjetas (Cards) */
+    .listContainer {
+        padding: 0.75rem;
+        overflow-x: hidden; 
+    }
+
+    .tableUsuarios {
+        border: none; 
+        font-size: 0.9rem; 
+    }
+
+    .tableUsuarios thead {
+        display: none; /* Ocultamos la cabecera */
+    }
+
+    .tableUsuarios tbody tr {
+        border: 1px solid #e6eef8;
+        display: block; /* Fila como tarjeta */
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        padding: 10px;
+    }
+
+    .tableUsuarios tbody td {
+        border: none; 
+        text-align: left;
+        display: block; /* Celda como bloque */
+        padding: 5px 0; 
+        position: relative;
+        padding-left: 45%; /* Espacio para la etiqueta */
+        font-size: 0.9rem;
+    }
+    
+    /* 3. Etiquetas (::before) para la info */
+    /* 7 Columnas: ID, Nombre, Apellido, Email, Rol, Estado, Acciones */
+    .tableUsuarios tbody tr td:nth-child(1)::before { content: "Cédula: "; }
+    .tableUsuarios tbody tr td:nth-child(2)::before { content: "Nombre: "; }
+    .tableUsuarios tbody tr td:nth-child(3)::before { content: "Apellido: "; }
+    .tableUsuarios tbody tr td:nth-child(4)::before { content: "Email: "; }
+    .tableUsuarios tbody tr td:nth-child(5)::before { content: "Rol: "; }
+    .tableUsuarios tbody tr td:nth-child(6)::before { content: "Estado: "; }
+    .tableUsuarios tbody tr td:nth-child(7)::before { content: "Acciones: "; }
+    
+    /* Estilo general para las etiquetas */
+    .tableUsuarios td::before {
+        position: absolute;
+        left: 10px;
+        width: 40%; 
+        padding-right: 10px;
+        white-space: nowrap; 
+        font-weight: bold;
+        color: #0b3d6b;
+        align-items: center;
+        text-align: center;
+    }
+    
+    /* 4. Ajustes para la celda de acciones */
+    .tableUsuarios tbody td:last-child {
+        text-align: center; 
+        padding: 10px 10px 0 10px; 
+        border-top: 1px solid #f2f2f2; 
+        margin-top: 5px;
+        padding-left: 10px; 
+
+    }
+
+    /* Alineación del botón de acción en la tarjeta */
+    .tableUsuarios tbody td:last-child button {
+        width: 25%;
+        text-align: center;
+        padding: 0.6rem 0.8rem;
+    }
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.paginationButton {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+    background: #eff6ff;
+    color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+    opacity: 0.5;
+    cursor: default;
+    transform: none;
+}
+
+.paginationButtonActive {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 0.85rem;
+    cursor: default;
+}

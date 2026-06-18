@@ -1,0 +1,16 @@
+{% macro render(paged, base_path, search='') %}
+<nav class="pagination" aria-label="Paginación">
+  {% set q = ('&q=' + search|urlencode) if search else '' %}
+  {% if paged.page > 1 %}
+  <a href="{{ base_path }}?page={{ paged.page - 1 }}{{ q }}">Anterior</a>
+  {% else %}
+  <span class="disabled">Anterior</span>
+  {% endif %}
+  <span class="paginationInfo">Página {{ paged.page }} de {{ paged.total_pages }} ({{ paged.total_items }} registros)</span>
+  {% if paged.page < paged.total_pages %}
+  <a href="{{ base_path }}?page={{ paged.page + 1 }}{{ q }}">Siguiente</a>
+  {% else %}
+  <span class="disabled">Siguiente</span>
+  {% endif %}
+</nav>
+{% endmacro %}

@@ -1,0 +1,85 @@
+/* Fonts */
+@font-face {
+  font-family: 'chetta-vissto';
+  src: local('ChettaVissto'), local('ChettaVissto'),
+       url('/fonts/ChettaVissto.woff') format('woff'),
+       url('/fonts/ChettaVissto.woff2') format('woff2'),
+       url('/fonts/ChettaVissto.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'leorio';
+  src: local('Leorio'), local('Leorio'),
+       url('/fonts/leorio.ttf') format('truetype'),
+}
+
+/* Styles */
+.footer {
+  font-family:"Open Sans", sans-serif;
+  background-color: #ffffff;
+  text-align: center;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  z-index: 6;
+  /* Dejar que el layout flex lo coloque al final.
+     Evitamos posicionamiento fijo para no tapar contenido. */
+  flex-shrink: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.copyWrite {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.infoFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+
+.infoText {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .copyWrite,
+  .infoFooter {
+    font-size: 0.8rem;
+  }
+
+  .infoFooter {
+    width: 100%;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 8px;
+  }
+}
+
+/* Estilos para la impresión */
+@media print {
+  .footer {
+    display: none;
+  }
+}

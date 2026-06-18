@@ -1,0 +1,217 @@
+/*
+ * ------------------------------------------------
+ * Estilos Comunes para Ambos Modales (Overlay, Modal Base, Botones de Cierre)
+ * ------------------------------------------------
+ */
+
+/* Fondo Oscuro que cubre la pantalla */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Contenedor principal del modal */
+.modal {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+    font-family:"Open Sans", sans-serif;
+}
+
+/* Título del modal */
+.cardVehiculo h2 {
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+/* Botón de cerrar (X) */
+.closeBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #aaa;
+    transition: color 0.2s;
+}
+
+.closeBtn:hover {
+    color: #e74c3c;
+}
+
+/*
+ * ------------------------------------------------
+ * Estilos para Formularios y Campos
+ * ------------------------------------------------
+ */
+
+.formVehiculo {
+    display: grid;
+    gap: 15px;
+}
+
+.formVehiculo label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.formVehiculo input[type="text"],
+.formVehiculo input[type="date"],
+.formVehiculo input[type="number"] {
+    padding: 10px 15px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formVehiculo input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    outline: none;
+}
+
+/* Estilos para el mensaje de estado de placa/kilometraje */
+.formVehiculo label > span {
+    display: block;
+    margin-top: 5px;
+    padding: 0 5px;
+    font-style: italic;
+}
+
+/*
+ * ------------------------------------------------
+ * Estilos para Botones de Acción (Actions, Submit, Cancelar)
+ * ------------------------------------------------
+ */
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.submitBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s;
+    background-color: #2ecc71; /* Verde para acción principal */
+    color: white;
+}
+
+.submitBtn:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+}
+
+.cancelBtn {
+    padding: 10px 20px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    background-color: #ecf0f1; /* Gris claro para cancelar */
+    color: #333;
+}
+
+.cancelBtn:hover {
+    background-color: #d5dbdb;
+}
+
+/*
+ * ------------------------------------------------
+ * Estilos Específicos de Botones de Apertura
+ * ------------------------------------------------
+ */
+
+/* Botón de "Registrar Nuevo Mantenimiento" (ModalRegistrarMantenimiento) */
+.openButton {
+    padding: 10px 20px;
+    background-color: #3498db; /* Azul */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.openButton:hover {
+    background-color: #2980b9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón de "Finalizar" (ModalFinalizarMantenimiento) */
+.buttonFinalizar {
+    padding: 8px 12px;
+    background-color: #f1c40f; /* Amarillo/Dorado */
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.buttonFinalizar:hover {
+    background-color: #f39c12;
+}
+
+/* Icono dentro del botón Finalizar */
+.buttonFinalizar svg {
+    width: 1.1em;
+    height: 1.1em;
+}
+
+
+/*
+ * ------------------------------------------------
+ * Animaciones
+ * ------------------------------------------------
+ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

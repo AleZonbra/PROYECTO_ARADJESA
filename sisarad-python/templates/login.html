@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SISARAD — Iniciar sesión</title>
+  <link rel="stylesheet" href="/static/css/sisarad.css">
+</head>
+<body>
+  <div class="loginPage">
+    <div class="loginCard">
+      <h1 class="loginTitle">SISARAD</h1>
+      <p class="loginSubtitle">Sistema de Inventario y Despachos</p>
+      {% if error %}
+      <div class="alert alertError">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/login" class="formGrid">
+        <label>Usuario
+          <input type="text" name="usuario" required autocomplete="username" placeholder="admin o encargado">
+        </label>
+        <label>Contraseña
+          <input type="password" name="clave" required autocomplete="current-password" placeholder="Tu contraseña">
+        </label>
+        <button type="submit" class="buttonPrimary">Ingresar</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

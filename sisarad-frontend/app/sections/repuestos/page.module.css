@@ -1,0 +1,424 @@
+/* Fonts */
+@font-face {
+  font-family: "chetta-vissto";
+  src:
+    local("ChettaVissto"),
+    local("ChettaVissto"),
+    url("/fonts/ChettaVissto.woff") format("woff"),
+    url("/fonts/ChettaVissto.woff2") format("woff2"),
+    url("/fonts/ChettaVissto.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "leorio";
+  src:
+    local("Leorio"),
+    local("Leorio"),
+    url("/fonts/leorio.ttf") format("truetype");
+}
+
+/* Styles Repuestos */
+.containerRepuestos {
+  width: 100%;
+  max-width: var(--content-max-width);
+  padding: calc(var(--container-padding) * 1.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Open Sans", sans-serif;
+  margin: var(--space-md) auto;
+  padding-top: calc(var(--header-height) + var(--space-md));
+}
+
+.tituloRepuestos {
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.containerRepuestos p {
+  color: #475569;
+  max-width: 880px;
+  text-align: center;
+  margin: 0 0 1rem 0;
+}
+
+.listRepuestos {
+  width: 100%;
+  max-width: var(--content-max-width);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+  margin: 0.75rem 0;
+  /* Evitamos scroll vertical interno; sólo scroll horizontal cuando
+     la tabla sea más ancha que el contenedor. */
+  overflow-x: auto;
+}
+
+.listRepuestos h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.tableRepuestos {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.paginationButton {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: #eff6ff;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.paginationButtonActive {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  cursor: default;
+}
+  font-family: inherit;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+.tableRepuestos thead th {
+  text-align: center;
+  padding: 0.7rem 0.6rem;
+  color: #0b3d6b;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(44, 19, 19);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+}
+
+.tableRepuestos tbody td {
+  text-align: center;
+  padding: 0.65rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: #000000;
+}
+
+@media (min-width: 769px) {
+  .tableRepuestos thead th,
+  .tableRepuestos tbody td {
+    border-width: 1px;
+    border-style: solid;
+  }
+}
+
+/* Style Buttons Delete */
+.buttonDelete {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonDelete:hover {
+  background-color: #c53030;
+}
+
+/* Boton para imprimir */
+.printButton {
+  text-align: center;
+  width: 20%;
+  margin: 5px;
+  padding: 0.5rem 1rem;
+  height: 1%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background-color: #0b3d6b;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.printButton:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.tituloParaImprimir {
+  display: none;
+}
+
+.botonYTitulo {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* Estilos para la impresión */
+@media print {
+  /* === 1. CONTROL DE VISIBILIDAD === */
+  /* Ocultar elementos que no deben aparecer en el reporte */
+  .printButton,
+    .buttonDelete,
+    .modalButton,
+    .closeBtn,
+    .overlay,
+    .actions,
+    .noprint,
+    .searchContainer,
+    .tituloRepuestos,
+    .title,
+    .paragraph,
+    .botonYTitulo /* Oculta el contenedor flex que incluye el botón de imprimir y la búsqueda */ {
+    display: none !important;
+  }
+
+  /* Mostrar el título de impresión */
+  .tituloParaImprimir {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24pt;
+    color: #000;
+  }
+
+  /* === 2. ANULACIÓN DE RESTRICCIONES DE ALTURA Y OVERFLOW (La Clave) === */
+  /* Forzar que todos los contenedores muestren el contenido completo para paginación */
+  /* global print adjustments moved to globals.css */
+
+  /* === 3. ESTILO Y PAGINACIÓN DE LA TABLA === */
+  .tableRepuestos {
+    width: 100% !important;
+    display: table !important; /* Asegurar el comportamiento de tabla */
+    page-break-inside: auto !important;
+    border-collapse: collapse; /* Asegura un aspecto limpio */
+  }
+
+  /* Asegurar que las filas no se corten a mitad de página */
+  .tableRepuestos tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  /* Quitar el border-radius feo de 50% para la impresión */
+  .tableRepuestos thead th,
+  .tableRepuestos tbody td {
+    border-radius: 0 !important;
+  }
+
+  /* === 4. OCULTAR COLUMNA DE ACCIONES (por índice) === */
+  /* Asumiendo que la columna de acciones es la quinta <th>/<td> en el HTML */
+  .tableRepuestos thead th:nth-child(5),
+  .tableRepuestos tbody td:nth-child(5) {
+    display: none !important;
+  }
+}
+
+/* Search */
+.searchContainer {
+  flex-grow: 1;
+  margin: 0 15px;
+}
+
+.searchContainer input {
+  width: 60%;
+  padding: 5px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* Asegúrate de que .botonYTitulo use flexbox para alinear todo */
+.botonYTitulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  /* 1. Reorganización del encabezado (título + búsqueda + botón de impresión) */
+  .botonYTitulo {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .listRepuestos h2 {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .searchContainer input {
+    width: 100%;
+    /* El input de búsqueda ocupa todo el ancho */
+  }
+
+  .printButton {
+    width: 100%;
+    /* El botón de imprimir ocupa todo el ancho */
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* 2. Estilos de la Tabla Adaptada a Móvil */
+  .listRepuestos {
+    overflow-x: hidden;
+    padding: 0.75rem;
+  }
+
+  .tableRepuestos {
+    border: none;
+    font-size: 0.9rem;
+  }
+
+  .tableRepuestos thead {
+    display: none;
+    /* Ocultamos la cabecera */
+  }
+
+  .tableRepuestos tr {
+    border: 1px solid #e6eef8;
+    display: block;
+    /* Fila como tarjeta */
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+  }
+
+  .tableRepuestos td {
+    border: none;
+    text-align: left;
+    display: block;
+    /* Celda como bloque */
+    padding: 5px 0;
+    position: relative;
+    padding-left: 52%;
+    /* Espacio para la etiqueta */
+    font-size: 0.9rem;
+    border-radius: 0 !important;
+  }
+
+  /* 3. Etiquetas (::before) para la info */
+  /* Como no tenemos data-label, usamos nth-of-type para las etiquetas */
+  .tableRepuestos tr td:nth-of-type(1)::before {
+    content: "ID Repuesto: ";
+  }
+
+  .tableRepuestos tr td:nth-of-type(2)::before {
+    content: "Nombre: ";
+  }
+
+  .tableRepuestos tr td:nth-of-type(3)::before {
+    content: "Precio: ";
+  }
+
+  .tableRepuestos tr td:nth-of-type(4)::before {
+    content: "Cantidad: ";
+  }
+
+  .tableRepuestos tr td:nth-of-type(5)::before {
+    content: "Acciones: ";
+  }
+
+  /* Solo si isAdmin es true */
+
+  /* Estilo general para las etiquetas */
+  .tableRepuestos td::before {
+    position: absolute;
+    left: 10px;
+    width: 48%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #0b3d6b;
+  }
+
+  /* 4. Ajustes para la celda de acciones (td:last-child) */
+  .tableRepuestos tr td:last-child {
+    text-align: left;
+    padding-left: 10px;
+    border-top: 1px solid #f2f2f2;
+    padding-top: 10px;
+    margin-top: 5px;
+
+    /* 🌟 HACER QUE LOS BOTONES SE ALINEEN EN FILA (ROW) 🌟 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    /* Alineamos los botones a la derecha del contenedor de acciones */
+  }
+
+  /* Ocultamos la etiqueta "Acciones" en móvil, ya que los botones lo indican */
+  .tableRepuestos tr td:last-child::before {
+    display: none;
+  }
+
+  /* Aseguramos que los botones de Modales (que son <div>) y <button> se alineen correctamente */
+  .tableRepuestos tr td:last-child button,
+  .tableRepuestos tr td:last-child > div[class*="modal"] {
+    display: flex;
+    margin: 0;
+  }
+
+  /* Estilos para el mensaje de "No hay resultados" */
+  .tableRepuestos tr:has(td[colspan]) {
+    display: table-row;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  .tableRepuestos tr:has(td[colspan]) td {
+    display: table-cell;
+    text-align: center;
+    padding: 20px 0;
+    border: none;
+    padding-left: 0;
+    color: #6b7280;
+  }
+}

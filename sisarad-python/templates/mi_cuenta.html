@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Mi cuenta — SISARAD{% endblock %}
+{% block content %}
+<div class="page">
+  <h1 class="title">Mi cuenta</h1>
+  <p class="subtitle">Actualiza tu perfil y contraseña cuando lo necesites</p>
+  {% include "partials/alerts.html" %}
+
+  <div class="panel">
+    <form method="post" action="/mi-cuenta/actualizar" class="formGrid accountForm">
+      <label>Usuario (login)
+        <input value="{{ perfil.usuario }}" disabled>
+      </label>
+      <label>Rol
+        <input value="{% if perfil.role == 'administrador_sistema' %}Administrador del Sistema{% elif perfil.role == 'encargado_negocio' %}Encargado de Negocio{% else %}{{ perfil.role }}{% endif %}" disabled>
+      </label>
+      <label>Estado
+        <input value="{{ 'ACTIVO' if perfil.activo else 'INACTIVO' }}" disabled>
+      </label>
+      <label>Nombre completo
+        <input name="nombre" value="{{ perfil.nombre }}" required>
+      </label>
+
+      <div class="accountSection">
+        <h2 class="accountSectionTitle">Cambiar contraseña</h2>
+        <p class="accountSectionHint">Completa estos campos solo si deseas cambiar tu contraseña.</p>
+        <label>Contraseña actual
+          <input name="clave_actual" type="password" autocomplete="current-password">
+        </label>
+        <label>Nueva contraseña
+          <input name="clave_nueva" type="password" autocomplete="new-password">
+        </label>
+        <label>Confirmar nueva contraseña
+          <input name="clave_confirmar" type="password" autocomplete="new-password">
+        </label>
+      </div>
+
+      <div class="modalActions">
+        <button type="submit" class="buttonPrimary">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

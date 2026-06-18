@@ -1,0 +1,732 @@
+/* Fonts */
+@font-face {
+  font-family: "chetta-vissto";
+  src: local("ChettaVissto"), local("ChettaVissto"),
+    url("/fonts/ChettaVissto.woff") format("woff"),
+    url("/fonts/ChettaVissto.woff2") format("woff2"),
+    url("/fonts/ChettaVissto.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "leorio";
+  src: local("Leorio"), local("Leorio"),
+    url("/fonts/leorio.ttf") format("truetype");
+}
+
+/* Styles Mantenimiento */
+.containerMantenimiento {
+  width: 100%;
+  max-width: var(--content-max-width);
+  padding: calc(var(--container-padding) * 1.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Open Sans", sans-serif;
+  margin: var(--space-md) auto;
+  padding-top: calc(var(--header-height) + var(--space-md));
+  box-sizing: border-box;
+}
+
+/* Estilos sencillos para el componente Mantenimiento (usados en page.jsx) */
+.containerMantenimiento h1 {
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.containerMantenimiento p {
+  color: #475569;
+  max-width: 880px;
+  text-align: center;
+  margin: 0 0 1rem 0;
+}
+
+.listMantenimiento {
+  width: 100%;
+  max-width: var(--content-max-width);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 10px 18px rgba(2, 6, 23, 0.06);
+  margin: 0.75rem 0;
+  /* Sólo scroll horizontal para tablas anchas; la altura crece para
+     que el footer quede después de todo el contenido. */
+  overflow-x: auto;
+}
+
+.listMantenimiento h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.tableMantenimiento {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.paginationButton {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: #eff6ff;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.paginationButtonActive {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  cursor: default;
+}
+  font-family: inherit;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+.tableMantenimiento thead th {
+  text-align: left;
+  padding: 0.7rem 0.6rem;
+  color: #0b3d6b;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
+}
+
+.tableMantenimiento tbody td {
+  text-align: left;
+  padding: 0.65rem 0.6rem;
+  border: 1px solid var(--border);
+  color: #000000;
+}
+
+@media (min-width: 769px) {
+  .tableMantenimiento thead th,
+  .tableMantenimiento tbody td {
+    border-width: 1px;
+    border-style: solid;
+  }
+}
+
+/* Style Buttons More and Delete */
+.buttonMore {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonMore:hover {
+  background-color: #2563eb;
+}
+
+.buttonDelete {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonDelete:hover {
+  background-color: #c53030;
+}
+
+/* Boton para imprimir */
+.printButton {
+  text-align: center;
+  margin: 5px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background-color: #0b3d6b;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.printButton:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.tituloParaImprimir {
+  display: none;
+}
+
+.botonYTitulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+/* Boton para imprimir por fila */
+.buttonPrint {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin: 1px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonPrint:hover {
+  background-color: #0b3d6b;
+}
+
+/* Oculta la fila y la tabla de detalles en la vista normal del navegador */
+.detalleRow {
+  display: none;
+}
+
+/* Opcional: Estilo para la sub-tabla (detalleTable) para cuando sea visible */
+.detalleTable {
+  width: 95%;
+  /* Hace que sea un poco más pequeña que la principal */
+  margin: 10px auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.detalleTable th,
+.detalleTable td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  /* Bordes más ligeros para la sub-tabla */
+  text-align: center;
+}
+
+.detalleTitle {
+  text-align: left;
+  margin-left: 20px;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+
+/* Responsive simple */
+@media (max-width: 720px) {
+  .containerMantenimiento {
+    padding: 1rem;
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+
+  /* 1. Reorganización del encabezado (título + búsqueda + botón de impresión) */
+  .botonYTitulo {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .listMantenimiento h2 {
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 1.3rem;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .searchContainer input {
+    width: 100%;
+    /* El input de búsqueda ocupa todo el ancho */
+  }
+
+  .printButton {
+    width: 100%;
+    /* El botón de imprimir ocupa todo el ancho */
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* 2. Estilos de la Tabla Adaptada a Móvil */
+  .listMantenimiento {
+    overflow-x: hidden;
+    padding: 0.75rem;
+  }
+
+  .tableMantenimiento {
+    border: none;
+    font-size: 0.9rem;
+  }
+
+  .tableMantenimiento thead {
+    display: none;
+    /* Ocultamos la cabecera */
+  }
+
+  .tableMantenimiento tr {
+    border: 1px solid #e6eef8;
+    display: block;
+    /* Fila como tarjeta */
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+  }
+
+  .tableMantenimiento td {
+    border: none;
+    display: flex; /* Flexbox for robust layout */
+    justify-content: space-between; /* Label left, Value right */
+    align-items: center; /* Vertically align */
+    text-align: right; /* Aligns text value to the right */
+    padding: 10px;
+    position: relative;
+    font-size: 0.9rem;
+    border-radius: 0 !important;
+    border-bottom: 1px solid #f0f0f0; /* Helper line between rows */
+  }
+
+  /* 3. Etiquetas (::before) para la info */
+  /* 9 Columnas de datos (N°, Placa, Tipo, Desc, F. Inicio, F. Culm, Km, Total, Acciones) */
+  .tableMantenimiento tr td:nth-of-type(1)::before {
+    content: "N° de Orden:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(2)::before {
+    content: "Placa:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(3)::before {
+    content: "Tipo:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(4)::before {
+    content: "Descripción:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(5)::before {
+    content: "F. Inicio:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(6)::before {
+    content: "F. Culminación:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(7)::before {
+    content: "Kilometraje:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(8)::before {
+    content: "Total:";
+  }
+
+  .tableMantenimiento tr td:nth-of-type(9)::before {
+    content: "Acciones:";
+  }
+
+  /* Estilo general para las etiquetas */
+  .tableMantenimiento td::before {
+    position: static; /* Natural flow */
+    width: auto;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #0b3d6b;
+    text-align: left;
+    flex-shrink: 0; /* Prevent label from squishing */
+  }
+
+  /* 4. Ajustes para la celda de acciones (td:last-child) */
+  .tableMantenimiento tr td:last-child {
+    text-align: left;
+    padding-left: 10px;
+    border-top: 1px solid #f2f2f2;
+    padding-top: 10px;
+    margin-top: 5px;
+
+    /* 🌟 HACER QUE LOS BOTONES SE ALINEEN EN FILA (ROW) 🌟 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: flex-end;
+    /* Alineamos los botones a la derecha */
+  }
+
+  /* Ocultamos la etiqueta "Acciones" en móvil, ya que los botones lo indican */
+  .tableMantenimiento tr td:last-child::before {
+    display: none;
+  }
+
+  /* Aseguramos que los botones de Modales (que son <div>) y <button> se alineen correctamente */
+  .tableMantenimiento tr td:last-child button,
+  .tableMantenimiento tr td:last-child>div[class*="modal"],
+  .tableMantenimiento tr td:last-child>span {
+    /* Incluimos el span de "Finalizado" */
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+
+  /* Ocultar la fila de detalles en móvil (usamos la misma lógica que la cabecera) */
+  .detalleRow {
+    display: none !important;
+  }
+
+  /* Estilos para el mensaje de "No hay resultados" */
+  .tableMantenimiento tr:has(td[colspan]) {
+    display: table-row;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  .tableMantenimiento tr:has(td[colspan]) td {
+    display: table-cell;
+    text-align: center;
+    padding: 20px 0;
+    border: none;
+    padding-left: 0;
+    color: #6b7280;
+  }
+}
+
+.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  /* Esto es clave para fijar la posición y evitar el salto */
+  width: 100%;
+}
+
+/* Imprimir */
+/* =========================================
+   Estilos para el Reporte (Visualización Normal)
+   ========================================= */
+/* Por defecto, el contenedor de impresión está oculto en la pantalla */
+.printContainer {
+  display: none;
+}
+
+/* Estilos internos del reporte para que se vea bonito al imprimir */
+.printableReport {
+  font-family: Arial, sans-serif;
+  color: #000;
+  padding: 20px;
+}
+
+.reportHeader {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+}
+
+.reportSection {
+  margin-bottom: 20px;
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.reportTable th,
+.reportTable td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+/* =========================================
+   Estilos para la IMPRESIÓN (@media print)
+   ========================================= */
+/* =========================================
+   NUEVA CONFIGURACIÓN DE IMPRESIÓN
+   ========================================= */
+
+@media print {
+
+    /* --- 1. AJUSTE DE CONTENEDORES PRINCIPALES (LA CLAVE) --- */
+    /* Anular restricciones de altura y desbordamiento en todos los contenedores */
+    /* global print adjustments moved to globals.css */
+
+    /* --- 2. REGLAS COMUNES (Ocultación) --- */
+    .buttonMore,
+    .buttonDelete,
+    .buttonUpdate,
+    .buttonPrint,
+    .printButton,
+    .botonYTitulo,
+    .noprint,
+    .modalMoreInformationMantenimiento,
+    .modal,
+    .overlay,
+    .searchContainer {
+        display: none !important;
+    }
+
+    /* Ajustar anchos y eliminar estilos de pantalla */
+    .containerMantenimiento,
+    .listMantenimiento,
+    .tableMantenimiento {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+    }
+    
+    /* Eliminar el border-radius feo de 50% para la impresión */
+    .tableMantenimiento thead th,
+    .tableMantenimiento tbody td {
+        border-radius: 0 !important;
+    }
+
+    /* Ocultar la última columna de Acciones (asumiendo que es la 9a) */
+    .tableMantenimiento thead th:last-child,
+    .tableMantenimiento tbody tr > td:last-child {
+        display: none !important;
+    }
+
+
+    /* -------------------------------------------------------
+       ESCENARIO A: IMPRESIÓN INDIVIDUAL (Reporte único)
+    ------------------------------------------------------- */
+    .modeIndividual .listMantenimiento,
+    .modeIndividual .containerMantenimiento h1,
+    .modeIndividual .containerMantenimiento p,
+    .modeIndividual .tituloParaImprimir {
+        display: none !important;
+    }
+
+    .modeIndividual .printContainer {
+        display: block !important;
+        /* El reporte individual debe ser el único visible */
+        position: static !important; 
+        /* Usar static para que fluya en la paginación */
+    }
+
+    /* -------------------------------------------------------
+       ESCENARIO B: IMPRESIÓN GENERAL (Tabla Completa con Detalles)
+    ------------------------------------------------------- */
+    .modeGeneral .printContainer {
+        display: none !important;
+    }
+
+    .modeGeneral .listMantenimiento {
+        display: block !important;
+    }
+
+    .modeGeneral .tituloParaImprimir {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24pt;
+    }
+
+    /* Forzar la visualización de los detalles y la paginación */
+    .modeGeneral .detalleRow {
+        display: table-row !important;
+        page-break-inside: avoid !important; /* Intenta que la fila de detalle no se rompa */
+    }
+
+    /* Aseguramos que la celda de detalle fluya */
+    .modeGeneral .detalleCell {
+        border-bottom: 2px solid #000;
+        /* Separador visual entre registros */
+        page-break-inside: auto !important;
+    }
+    
+    /* Paginar la fila principal para que no se corte a mitad */
+    .tableMantenimiento tbody > tr {
+        page-break-inside: avoid !important;
+    }
+
+    /* Asegurar que la sub-tabla se muestre correctamente */
+    .detalleTable {
+        break-inside: auto !important; /* Permite que la sub-tabla se rompa si es muy larga */
+    }
+}
+/* Search Input */
+/* En tu archivo page.module.css */
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.listMantenimiento {
+  /* Sólo controlamos el scroll horizontal para tablas anchas.
+     Dejamos que la altura crezca de forma natural para que el footer
+     quede siempre después de todo el contenido. */
+  overflow-x: auto;
+}
+
+.tableMantenimiento td {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 769px) {
+  /* Restaurar semántica de tabla en escritorio */
+  .tableMantenimiento thead {
+    display: table-header-group;
+  }
+
+  .tableMantenimiento tr {
+    display: table-row;
+  }
+
+  .tableMantenimiento td {
+    display: table-cell;
+    text-align: left;
+    padding: 0.75rem 0.8rem;
+  }
+
+  /* Ocultar etiquetas móviles en escritorio */
+  .tableMantenimiento td::before {
+    display: none;
+  }
+
+  .detalleRow {
+    display: table-row;
+  }
+}
+
+.searchContainer input {
+  width: 100%;
+  padding: 5px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.searchContainer input:focus {
+  border-color: #007bff;
+  /* O el color principal de tu marca */
+}
+
+/* Nuevo estilo para el botón de exportación general */
+.buttonExportCsv {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin: 1px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonExportCsv:hover {
+    background-color: #059669 !important; /* Verde oscuro al pasar el ratón */
+    color: #ffffff;
+}
+
+/* Aseguramos que se oculte al imprimir */
+@media print {
+    /* ... (sus otras reglas de ocultación) ... */
+    .buttonExportCsv {
+        display: none !important;
+    }
+}
+
+/* Ajustes para vista de escritorio (TableView) para maximizar espacio */
+@media (min-width: 769px) {
+  /* Reducir padding al mínimo confortable */
+  .tableMantenimiento th, .tableMantenimiento td {
+      padding: 0.5rem 0.3rem !important;
+      font-size: 0.85rem;
+  }
+
+  /* === CELDAS DE DATOS (td) === */
+  /* Mantener estos valores en una sola línea para evitar cortes feos */
+  .tableMantenimiento td:nth-of-type(1), /* N° */
+  .tableMantenimiento td:nth-of-type(2), /* Placa */
+  .tableMantenimiento td:nth-of-type(5), /* F. Inicio */
+  .tableMantenimiento td:nth-of-type(6), /* F. Culm */
+  .tableMantenimiento td:nth-of-type(7), /* Km */
+  .tableMantenimiento td:nth-of-type(8)  /* Total */
+  {
+      white-space: nowrap;
+      width: 1%;
+  }
+
+  /* === ENCABEZADOS (th) === */
+  /* Permitir que los encabezados largos hagan wrap para ahorrar ancho */
+  .tableMantenimiento th:nth-of-type(5), /* Fecha de Inicio */
+  .tableMantenimiento th:nth-of-type(6), /* Fecha de Culminacion */
+  .tableMantenimiento th:nth-of-type(7)  /* Kilometraje actual */
+  {
+      white-space: normal; /* Permitir salto de línea */
+      max-width: 80px; /* Forzar que se compriman */
+      vertical-align: bottom; /* Alinear abajo */
+      line-height: 1.1;
+  }
+
+  /* === COLUMNAS FLEXIBLES === */
+  /* Descripción y Tipo absorben espacio */
+  .tableMantenimiento th:nth-of-type(3), .tableMantenimiento td:nth-of-type(3),
+  .tableMantenimiento th:nth-of-type(4), .tableMantenimiento td:nth-of-type(4) {
+      white-space: normal; 
+      max-width: 180px; 
+  }
+
+  /* === ACCIONES === */
+  .tableMantenimiento th:last-child, .tableMantenimiento td:last-child {
+      white-space: nowrap;
+      width: 1%;
+      min-width: 100px; /* Reducir mínimum width */
+      text-align: center;
+  }
+
+  /* Asegurar que el botón Finalizar también respete esto */
+  .buttonFinalizar {
+      padding: 6px 8px; /* Reducir padding del botón */
+      font-size: 0.8rem;
+  }
+}

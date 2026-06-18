@@ -1,0 +1,872 @@
+/* Fonts */
+@font-face {
+  font-family: "chetta-vissto";
+  src: local("ChettaVissto"), local("ChettaVissto"),
+    url("/fonts/ChettaVissto.woff") format("woff"),
+    url("/fonts/ChettaVissto.woff2") format("woff2"),
+    url("/fonts/ChettaVissto.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "leorio";
+  src: local("Leorio"), local("Leorio"),
+    url("/fonts/leorio.ttf") format("truetype");
+}
+
+/* Styles Vehiculo */
+.containerVehiculo {
+  width: 100%;
+  max-width: var(--content-max-width);
+  padding: calc(var(--container-padding) * 1.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Open Sans", sans-serif;
+  margin: var(--space-md) auto;
+  padding-top: calc(var(--header-height) + var(--space-md));
+}
+
+/* Estilos sencillos para el componente Vehículos (usados en page.jsx) */
+.containerVehiculo h1 {
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.containerVehiculo p {
+  color: #475569;
+  max-width: 880px;
+  text-align: center;
+  margin: 0 0 1rem 0;
+}
+
+.cardVehiculo {
+  width: 100%;
+  max-width: var(--content-max-width);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+  margin: 0.75rem 0;
+}
+
+.cardVehiculo h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.listVehiculo {
+  width: 100%;
+  max-width: var(--content-max-width);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 10px 18px rgba(2, 6, 23, 0.06);
+  margin: 0.75rem 0;
+  /* Sólo scroll horizontal para tablas anchas; dejamos que la altura
+     crezca de forma natural para que el footer quede al final. */
+  overflow-x: auto;
+}
+
+.listVehiculo h2 {
+  margin: 0 0 0.5rem 0;
+}
+
+.tableVehiculo {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  font-family: inherit;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+.tableVehiculo thead th {
+  text-align: center;
+  padding: 0.7rem 0.6rem;
+  color: #0b3d6b;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(44, 19, 19);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.tableVehiculo tbody td {
+  text-align: center;
+  padding: 0.65rem 0.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  color: #000000;
+}
+
+/* Ensure table cells show clear borders on desktop */
+@media (min-width: 769px) {
+  .tableVehiculo thead th,
+  .tableVehiculo tbody td {
+    border-width: 1px;
+    border-style: solid;
+  }
+}
+
+/* Style Buttons Delete */
+.buttonDelete {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonDelete:hover {
+  background-color: #c53030;
+}
+
+/* Styles Buttons Update */
+.buttonUpdate {
+  background-color: #d1c6c6;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+  margin: 5px;
+}
+
+.buttonUpdate:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Boton para imprimir */
+.printButton {
+  text-align: center;
+  width: 20%;
+  margin: 5px;
+  padding: 0.5rem 1rem;
+  height: 1%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background-color: #0b3d6b;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.printButton:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.tituloParaImprimir {
+  display: none;
+}
+
+.botonYTitulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+/* Responsive simple */
+@media (max-width: 720px) {
+  .formVehiculo {
+    grid-template-columns: 1fr;
+  }
+
+  .containerVehiculo {
+    padding: 1rem;
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+
+  /* Reorganización del encabezado (título + búsqueda + botón de impresión) */
+  .botonYTitulo {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .listVehiculo h2 {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+    margin: 0;
+    /* Eliminamos el margen horizontal del contenedor de búsqueda */
+  }
+
+  .searchContainer input {
+    width: 100%;
+    /* El input debe ser 100% dentro de su contenedor */
+  }
+
+  .printButton {
+    width: 100%;
+    /* El botón de imprimir ocupa todo el ancho */
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* 🚗 Estilos de la Tabla Adaptada a Móvil 🚗 */
+  .listVehiculo {
+    overflow-x: hidden;
+    /* Aseguramos que no haya scroll horizontal */
+    padding: 0.75rem;
+  }
+
+  .tableVehiculo {
+    border: none;
+    /* Quitamos el borde general de la tabla */
+    font-size: 0.9rem;
+    /* Reducimos ligeramente la fuente para ganar espacio */
+  }
+
+  .tableVehiculo thead {
+    display: none;
+    /* Ocultamos la cabecera (Marca, Modelo, Placa...) */
+  }
+
+  .tableVehiculo tr {
+    border: 1px solid #e6eef8;
+    display: block;
+    /* Cada fila se comporta como un bloque (un "card") */
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+  }
+
+  .tableVehiculo td {
+    /* Ocultamos los bordes de las celdas y las alineamos a la izquierda */
+    border: none;
+    text-align: left;
+    display: block;
+    /* Cada celda también es un bloque */
+    padding: 5px 0;
+    position: relative;
+    padding-left: 50%;
+    /* Espacio para la etiqueta */
+    font-size: 0.9rem;
+    border-radius: 0 !important;
+    /* Quitamos el border-radius forzado */
+  }
+
+  /* 🏷️ Creamos la etiqueta a partir de la cabecera implícita 🏷️ */
+  .tableVehiculo tr td:nth-of-type(1)::before {
+    content: "Marca: ";
+  }
+
+  .tableVehiculo tr td:nth-of-type(2)::before {
+    content: "Modelo: ";
+  }
+
+  .tableVehiculo tr td:nth-of-type(3)::before {
+    content: "Año: ";
+  }
+
+  .tableVehiculo tr td:nth-of-type(4)::before {
+    content: "Placa: ";
+  }
+
+  .tableVehiculo tr td:nth-of-type(5)::before {
+    content: "Kilometraje: ";
+  }
+
+  .tableVehiculo tr td:nth-of-type(6)::before {
+    content: "Acciones: ";
+  }
+
+  /* La columna de acciones */
+
+  /* Estilo general para las etiquetas */
+  .tableVehiculo td::before {
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    /* Ancho fijo para la etiqueta */
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #0b3d6b;
+  }
+
+  /* Ajustes para la celda de acciones para que los botones se alineen mejor */
+  .tableVehiculo tr td:last-child {
+    text-align: left;
+    /* Restablecemos la alineación */
+    padding-left: 10px;
+    border-top: 1px solid #f2f2f2;
+    padding-top: 10px;
+    margin-top: 5px;
+
+    /* 🌟 HACER QUE LOS BOTONES SE ALINEEN EN FILA HORIZONTAL 🌟 */
+    display: flex;
+    flex-wrap: wrap;
+    /* Por si son muchos botones, que salten de línea */
+    gap: 8px;
+    /* Espacio entre botones */
+    justify-content: flex-start;
+    /* Alineamos los botones horizontalmente desde la izquierda */
+  }
+
+  .tableVehiculo tr td:last-child::before {
+    display: none;
+    /* Ocultamos la etiqueta "Acciones" en móvil, ya que el contenido es obvio (botones) */
+  }
+
+  /* Estilos para el mensaje de "No hay resultados" */
+  .tableVehiculo tr:has(td[colspan="6"]) {
+    display: table-row;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  .tableVehiculo tr:has(td[colspan="6"]) td {
+    display: table-cell;
+    text-align: center;
+    padding: 20px 0;
+    border: none;
+    padding-left: 0;
+    color: #6b7280;
+  }
+
+  /* 🌟 ESTILO PARA LOS BOTONES DENTRO DE LA CELDA DE ACCIONES 🌟 */
+  /* Aseguramos que los botones de Modales (que son <div> en tu código) y <button> se vean bien */
+  .tableVehiculo tr td:last-child button,
+  .tableVehiculo tr td:last-child>div[class*="modal"] {
+    /* Usamos 'div[class*="modal"]' para seleccionar los componentes de modal */
+    display: flex;
+    /* Aseguramos que los botones dentro de los modales también se alineen */
+    margin: 0;
+    /* Quitamos márgenes heredados que puedan romper la alineación */
+  }
+}
+
+
+/* Search */
+.searchContainer {
+  flex-grow: 1;
+  margin: 0 15px;
+}
+
+.searchContainer input {
+  width: 100%;
+  /* Aseguramos que el input de búsqueda ocupe el ancho completo disponible */
+  padding: 5px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.paginationButton {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: #eff6ff;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.paginationButtonActive {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+/* Asegúrate de que .botonYTitulo use flexbox para alinear todo */
+.botonYTitulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 10px;
+  flex-wrap: wrap;
+  /* Permitimos que los elementos salten de línea en pantallas pequeñas */
+}
+
+.printReport {
+  display: none;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.tituloReporte,
+.subtituloReporte {
+  text-align: center;
+  color: #0b3d6b;
+  margin-bottom: 10px;
+}
+
+.infoGridReport {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.infoItemReport {
+  font-size: 0.95rem;
+}
+
+.labelReport {
+  font-weight: 700;
+  margin-right: 5px;
+  color: #333;
+}
+
+.sectionTitleReport {
+  color: #3b82f6;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 5px;
+  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.tableReport {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableReport th,
+.tableReport td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.tableReport th {
+  background-color: #f2f2f2;
+}
+
+.footerReport {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 30px;
+}
+
+/* Modo de impresión General (cuando se imprime la tabla) */
+/* src/app/sections/vehiculos/page.module.css (Añadir o reemplazar la sección @media print) */
+
+/* ... Mantén todos tus estilos anteriores ... */
+
+/* ----------------------------------------------- */
+/* Styles para Impresión */
+/* ----------------------------------------------- */
+
+/* Contenedor del reporte individual, por defecto oculto */
+.printReport {
+  display: none;
+  margin: 20px 0;
+  padding: 20px;
+  /* ... (otros estilos de reporte) ... */
+}
+
+.buttonPrint {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonPrint:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+
+/* ... (otros estilos de reporte) ... */
+
+@media print {
+    /* --- 1. AJUSTES GENERALES DE PAGINACIÓN --- */
+    /* Anula cualquier restricción de altura o desbordamiento en contenedores principales */
+    /* global print adjustments moved to globals.css */
+
+    /* --- 2. VISIBILIDAD DE REPORTE INDIVIDUAL --- */
+    .printReport {
+        display: block !important;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        /* Asegura que el reporte individual no sea cortado */
+        break-before: auto;
+        break-after: auto;
+    }
+
+    /* --- 3. MANEJO DE SALTOS DE PÁGINA (Para tablas largas) --- */
+    /* Permite que las tablas grandes (como el historial de kilometraje) se paginen correctamente */
+    .tableReport {
+        break-inside: auto; /* Permite que la tabla se rompa si es muy larga */
+        width: 100%;
+    }
+    
+    /* Intenta mantener las filas completas y evita que se corten a mitad */
+    .tableReport tr {
+        page-break-inside: avoid; 
+        break-inside: avoid;
+    }
+
+    /* --- 4. OCULTAR ELEMENTOS NO DESEADOS --- */
+    /* Mantienes tus reglas de ocultación */
+    .noprint,
+    .listVehiculo > .botonYTitulo .searchContainer,
+    .title,
+    .paragraph,
+    .modalCreateVehiculo,
+    .printButton,
+    /* Ocultamos la tabla general si estamos imprimiendo el reporte individual */
+    .containerVehiculo.modeIndividual .listVehiculo {
+        display: none !important;
+    }
+
+    /* Mostrar el título grande solo al imprimir */
+    .tituloParaImprimir {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24pt;
+        color: #000;
+    }
+
+    /* Mostrar solo el reporte individual en modo individual */
+    .containerVehiculo.modeIndividual .printReport {
+        display: block !important;
+        page-break-after: always;
+    }
+}
+
+/* Nuevo estilo para el botón de exportación general */
+.buttonExportCsv {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin: 1px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.buttonExportCsv:hover {
+    background-color: #059669 !important; /* Verde oscuro al pasar el ratón */
+    color: #ffffff;
+}
+
+/* Aseguramos que se oculte al imprimir */
+@media print {
+    /* ... (sus otras reglas de ocultación) ... */
+    .buttonExportCsv {
+        display: none !important;
+    }
+}
+
+/* ----------------------------------------------- */
+/* Sección Crear Recordatorio (modal vehículo)    */
+/* ----------------------------------------------- */
+
+.reminderSection {
+  margin-top: 24px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.reminderSection h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.05rem;
+  color: #0b3d6b;
+}
+
+.reminderForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 16px;
+  align-items: flex-end;
+}
+
+.reminderField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reminderField label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.reminderField input,
+.reminderField select {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+.reminderActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.secondaryButton,
+.primaryButton {
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.primaryButton {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .reminderForm {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----------------------------------------------- */
+/* Lista de Recordatorios                         */
+/* ----------------------------------------------- */
+
+.remindersSection {
+  margin-top: 20px;
+}
+
+.remindersTitle {
+  text-align: center;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.remindersEmpty {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.remindersList {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.reminderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  margin-bottom: 6px;
+}
+
+.reminderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reminderTitle {
+  font-weight: 600;
+}
+
+.reminderMeta {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.reminderActions {
+  display: flex;
+  gap: 6px;
+}
+
+.reminderButton {
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+.reminderButtonDanger {
+  border-color: #f97373;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .reminderItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reminderActions {
+    margin-top: 4px;
+  }
+}
+
+/* ----------------------------------------------- */
+/* Notificaciones dentro del modal de Vehículo    */
+/* ----------------------------------------------- */
+
+.notificationsSectionVehiculo {
+  margin-top: 24px;
+}
+
+.notificationsTitleVehiculo {
+  text-align: center;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.notificationsEmptyVehiculo {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.notificationsListVehiculo {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.notificationItemVehiculo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  margin-bottom: 6px;
+}
+
+.notificationMainVehiculo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notificationTitleVehiculo {
+  font-size: 0.9rem;
+}
+
+.notificationMetaVehiculo {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.notificationActionsVehiculo {
+  display: flex;
+  align-items: center;
+}
+
+.notificationButtonVehiculo {
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  border: 1px solid #3b82f6;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.notificationStatusVehiculo {
+  font-size: 0.85rem;
+  color: #16a34a;
+}
+
+@media (max-width: 640px) {
+  .notificationItemVehiculo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notificationActionsVehiculo {
+    margin-top: 4px;
+  }
+}

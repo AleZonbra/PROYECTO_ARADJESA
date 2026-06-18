@@ -1,0 +1,65 @@
+.container {
+  width: 100%;
+}
+
+.title {
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+}
+
+.description {
+  color: #475569;
+  margin: 0 0 1.5rem 0;
+}
+
+.actions {
+  margin-bottom: 2rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #0b3d6b;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: "Open Sans", sans-serif;
+}
+
+.button:hover:not(:disabled) {
+  background: #0a3560;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  padding: 1rem;
+  text-align: center;
+  background: #eff6ff;
+  color: #1e40af;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.info p {
+  margin: 0;
+  color: #334155;
+}

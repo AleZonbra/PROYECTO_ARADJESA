@@ -1,0 +1,29 @@
+{% if user %}
+<div class="notificationsContainer" id="notificationsContainer">
+  <button type="button" class="bellButton" id="notificationsBtn" aria-label="Notificaciones" aria-expanded="false" aria-haspopup="true">
+    <svg class="bellIcon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path fill="currentColor" d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 1 0-14 0v5l-2 2v1h18v-1l-2-2Z"/>
+    </svg>
+    {% if notification_count > 0 %}
+    <span class="notificationBadge">{{ notification_count if notification_count < 100 else '99+' }}</span>
+    {% endif %}
+  </button>
+  <div class="notificationsDropdown" id="notificationsDropdown">
+    <h4>Notificaciones</h4>
+    {% if notifications %}
+    <ul class="notificationsList">
+      {% for n in notifications %}
+      <li class="notificationItem notification-{{ n.nivel }}">
+        <a href="{{ n.enlace }}" class="notificationLink">
+          <span class="notificationTitle">{{ n.titulo }}</span>
+          <span class="notificationMessage">{{ n.mensaje }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="notificationsEmpty">No hay alertas pendientes.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
