@@ -10,6 +10,7 @@ from app.auth import require_auth
 from app.database import Base, SessionLocal, engine
 from app.exceptions import ForbiddenError, NotAuthenticatedError
 from app.middleware.notifications import NotificationsMiddleware
+from app.migrations import aplicar_migraciones
 from app.routes import web
 from app.seed import inicializar_datos
 
@@ -42,6 +43,7 @@ app.include_router(protected)
 @app.on_event("startup")
 def startup():
     (BASE_DIR / "data").mkdir(exist_ok=True)
+    aplicar_migraciones(engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:

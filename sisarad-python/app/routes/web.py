@@ -8,6 +8,7 @@ from app.database import get_db
 from app.models import Cliente, Movimiento, Producto, Proveedor, Usuario, Vendedor
 from app.pagination import ITEMS_PER_PAGE, paginate
 from app.services import dashboard_service, movimientos_service
+from app.services import password_reset_service
 from app.services.movimientos_service import StockInsuficienteError
 
 public_router = APIRouter()
@@ -87,9 +88,18 @@ def _filter_usuarios(items, search: str):
         for u in items
         if s in u.usuario.lower()
         or s in u.nombre.lower()
+        or s in (u.correo or "").lower()
         or s in u.role.lower()
         or s in etiqueta_rol(u.role).lower()
     ]
+
+
+def _correo_disponible(db: Session, correo: str, excluir_id: str | None = None) -> bool:
+    correo_limpio = password_reset_service.normalizar_correo(correo)
+    query = db.query(Usuario).filter(Usuario.correo == correo_limpio)
+    if excluir_id:
+        query = query.filter(Usuario.id != excluir_id)
+    return query.first() is None
 
 
 def _get_usuario(db: Session, param: str | None):
@@ -116,7 +126,12 @@ def login_page(request: Request):
     if require_user(request):
         return RedirectResponse("/inicio", status_code=303)
     return request.app.state.templates.TemplateResponse(
-        "login.html", {"request": request, "error": request.query_params.get("error", "")}
+        "login.html",
+        {
+            "request": request,
+            "error": request.query_params.get("error", ""),
+            "msg": request.query_params.get("msg", ""),
+        },
     )
 
 
@@ -144,6 +159,72 @@ def logout(request: Request):
     return RedirectResponse("/login", status_code=303)
 
 
+@public_router.get("/recuperar-contrasena")
+def recuperar_contrasena_page(request: Request):
+    if require_user(request):
+        return RedirectResponse("/inicio", status_code=303)
+    return request.app.state.templates.TemplateResponse(
+        "recuperar_contrasena.html",
+        {
+            "request": request,
+            "error": request.query_params.get("error", ""),
+            "msg": request.query_params.get("msg", ""),
+        },
+    )
+
+
+@public_router.post("/recuperar-contrasena")
+def recuperar_contrasena_submit(
+    usuario: str = Form(...),
+    correo: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    ok, mensaje = password_reset_service.solicitar_recuperacion(db, usuario, correo)
+    if not ok:
+        return RedirectResponse(f"/recuperar-contrasena?error={mensaje}", status_code=303)
+    return RedirectResponse(f"/login?msg={mensaje}", status_code=303)
+
+
+@public_router.get("/restablecer-contrasena")
+def restablecer_contrasena_page(request: Request, db: Session = Depends(get_db)):
+    if require_user(request):
+        return RedirectResponse("/inicio", status_code=303)
+    token = request.query_params.get("token", "")
+    usuario = password_reset_service.obtener_usuario_por_token(db, token)
+    if not token or not usuario:
+        return RedirectResponse(
+            "/recuperar-contrasena?error=El+enlace+no+es+válido+o+ha+expirado",
+            status_code=303,
+        )
+    return request.app.state.templates.TemplateResponse(
+        "restablecer_contrasena.html",
+        {
+            "request": request,
+            "token": token,
+            "usuario": usuario.usuario,
+            "error": request.query_params.get("error", ""),
+        },
+    )
+
+
+@public_router.post("/restablecer-contrasena")
+def restablecer_contrasena_submit(
+    token: str = Form(...),
+    clave: str = Form(...),
+    clave_confirmar: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    if clave != clave_confirmar:
+        return RedirectResponse(
+            f"/restablecer-contrasena?token={token}&error=Las+contraseñas+no+coinciden",
+            status_code=303,
+        )
+    ok, mensaje = password_reset_service.restablecer_contrasena(db, token, clave)
+    destino = "/login" if ok else f"/restablecer-contrasena?token={token}"
+    param = "msg" if ok else "error"
+    return RedirectResponse(f"{destino}?{param}={mensaje}", status_code=303)
+
+
 # --- Mi cuenta ---
 
 
@@ -169,6 +250,7 @@ def mi_cuenta(request: Request, db: Session = Depends(get_db)):
 def mi_cuenta_actualizar(
     request: Request,
     nombre: str = Form(...),
+    correo: str = Form(...),
     clave_actual: str = Form(""),
     clave_nueva: str = Form(""),
     clave_confirmar: str = Form(""),
@@ -178,6 +260,11 @@ def mi_cuenta_actualizar(
     perfil = db.get(Usuario, current["id"])
     if not perfil:
         return _redirect("/login")
+    correo_limpio = password_reset_service.normalizar_correo(correo)
+    if not password_reset_service.correo_valido(correo_limpio):
+        return _redirect("/mi-cuenta", error="El+correo+electrónico+no+es+válido")
+    if not _correo_disponible(db, correo_limpio, perfil.id):
+        return _redirect("/mi-cuenta", error="Ese+correo+ya+está+registrado")
     if clave_nueva or clave_confirmar or clave_actual:
         if not clave_actual:
             return _redirect("/mi-cuenta", error="Ingresa+tu+contraseña+actual")
@@ -189,6 +276,7 @@ def mi_cuenta_actualizar(
             return _redirect("/mi-cuenta", error="Las+contraseñas+nuevas+no+coinciden")
         perfil.clave = clave_nueva
     perfil.nombre = nombre.strip()
+    perfil.correo = correo_limpio
     db.commit()
     _actualizar_sesion_usuario(request, perfil)
     return _redirect("/mi-cuenta", msg="Perfil+actualizado+correctamente")
@@ -530,14 +618,20 @@ def usuarios_list(request: Request, db: Session = Depends(get_db)):
 def usuarios_crear(
     usuario: str = Form(...),
     nombre: str = Form(...),
+    correo: str = Form(...),
     clave: str = Form(...),
     role: str = Form(...),
     activo: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
     usuario_limpio = usuario.strip().lower()
+    correo_limpio = password_reset_service.normalizar_correo(correo)
     if not usuario_limpio or not clave.strip():
         return _redirect("/usuarios", error="Usuario+y+contraseña+son+obligatorios")
+    if not password_reset_service.correo_valido(correo_limpio):
+        return _redirect("/usuarios", error="El+correo+electrónico+no+es+válido")
+    if not _correo_disponible(db, correo_limpio):
+        return _redirect("/usuarios", error="Ese+correo+ya+está+registrado")
     if role not in (ADMINISTRADOR_SISTEMA, ENCARGADO_NEGOCIO):
         return _redirect("/usuarios", error="Rol+inválido")
     if db.query(Usuario).filter(Usuario.usuario == usuario_limpio).first():
@@ -550,6 +644,7 @@ def usuarios_crear(
             id=user_id,
             usuario=usuario_limpio,
             nombre=nombre.strip(),
+            correo=correo_limpio,
             clave=clave,
             role=role,
             activo=activo == "ACTIVO",
@@ -564,6 +659,7 @@ def usuarios_actualizar(
     item_id: str,
     request: Request,
     nombre: str = Form(...),
+    correo: str = Form(...),
     clave: str = Form(""),
     role: str = Form(...),
     activo: str = Form("ACTIVO"),
@@ -572,6 +668,11 @@ def usuarios_actualizar(
     item = db.get(Usuario, item_id)
     if not item:
         return _redirect("/usuarios", error="Usuario+no+encontrado")
+    correo_limpio = password_reset_service.normalizar_correo(correo)
+    if not password_reset_service.correo_valido(correo_limpio):
+        return _redirect("/usuarios", error="El+correo+electrónico+no+es+válido")
+    if not _correo_disponible(db, correo_limpio, item_id):
+        return _redirect("/usuarios", error="Ese+correo+ya+está+registrado")
     if role not in (ADMINISTRADOR_SISTEMA, ENCARGADO_NEGOCIO):
         return _redirect("/usuarios", error="Rol+inválido")
     pierde_admin_activo = item.role == ADMINISTRADOR_SISTEMA and item.activo and (
@@ -582,6 +683,7 @@ def usuarios_actualizar(
         if admins <= 1:
             return _redirect("/usuarios", error="Debe+existir+al+menos+un+administrador+activo")
     item.nombre = nombre.strip()
+    item.correo = correo_limpio
     if clave.strip():
         item.clave = clave
     item.role = role

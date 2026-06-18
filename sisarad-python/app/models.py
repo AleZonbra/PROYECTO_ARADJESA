@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -10,9 +10,24 @@ class Usuario(Base):
     id = Column(String, primary_key=True)
     usuario = Column(String, unique=True, nullable=False)
     nombre = Column(String, nullable=False)
+    correo = Column(String, unique=True)
     clave = Column(String, nullable=False)
     role = Column(String, default="administrador")
     activo = Column(Boolean, default=True)
+
+    reset_tokens = relationship("PasswordResetToken", back_populates="usuario_rel")
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    usuario_id = Column(String, ForeignKey("usuarios.id"), nullable=False)
+    token_hash = Column(String, nullable=False, unique=True)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+
+    usuario_rel = relationship("Usuario", back_populates="reset_tokens")
 
 
 class Producto(Base):

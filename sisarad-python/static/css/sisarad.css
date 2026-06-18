@@ -776,6 +776,21 @@ body {
   margin: 0 0 1.5rem;
 }
 
+.loginFooter {
+  margin: 1.25rem 0 0;
+  text-align: center;
+}
+
+.loginLink {
+  color: #002060;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 992px) {
   .mobileMenuButton { display: flex; }
 

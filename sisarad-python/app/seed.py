@@ -12,6 +12,7 @@ def seed_usuarios(db: Session):
             "id": "admin",
             "usuario": "admin",
             "nombre": "Administrador del Sistema",
+            "correo": "admin@sisarad.local",
             "clave": "admin",
             "role": "administrador_sistema",
         },
@@ -19,6 +20,7 @@ def seed_usuarios(db: Session):
             "id": "encargado",
             "usuario": "encargado",
             "nombre": "Encargado de Negocio",
+            "correo": "encargado@sisarad.local",
             "clave": "encargado",
             "role": "encargado_negocio",
         },
@@ -28,6 +30,7 @@ def seed_usuarios(db: Session):
         if existente:
             existente.usuario = datos["usuario"]
             existente.nombre = datos["nombre"]
+            existente.correo = datos["correo"]
             existente.clave = datos["clave"]
             existente.role = datos["role"]
             existente.activo = True

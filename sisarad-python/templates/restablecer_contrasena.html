@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SISARAD — Restablecer contraseña</title>
+  <link rel="stylesheet" href="/static/css/sisarad.css">
+</head>
+<body>
+  <div class="loginPage">
+    <div class="loginCard">
+      <h1 class="loginTitle">Nueva contraseña</h1>
+      <p class="loginSubtitle">Usuario: <strong>{{ usuario }}</strong></p>
+      {% if error %}
+      <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
+      {% endif %}
+      <form method="post" action="/restablecer-contrasena" class="formGrid">
+        <input type="hidden" name="token" value="{{ token }}">
+        <label>Nueva contraseña
+          <input type="password" name="clave" required autocomplete="new-password" minlength="4">
+        </label>
+        <label>Confirmar contraseña
+          <input type="password" name="clave_confirmar" required autocomplete="new-password" minlength="4">
+        </label>
+        <button type="submit" class="buttonPrimary">Guardar contraseña</button>
+      </form>
+      <p class="loginFooter">
+        <a href="/login" class="loginLink">Volver al inicio de sesión</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

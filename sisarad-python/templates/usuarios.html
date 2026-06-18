@@ -22,6 +22,7 @@
           <tr>
             <th>Usuario</th>
             <th>Nombre</th>
+            <th>Correo</th>
             <th>Rol</th>
             <th>Estado</th>
             <th>Acciones</th>
@@ -32,6 +33,7 @@
           <tr>
             <td>{{ item.usuario }}</td>
             <td>{{ item.nombre }}</td>
+            <td>{{ item.correo or '—' }}</td>
             <td>
               {% if item.role == 'administrador_sistema' %}
               Administrador del Sistema
@@ -47,7 +49,7 @@
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="5" class="emptyRow">No hay usuarios registrados</td></tr>
+          <tr><td colspan="6" class="emptyRow">No hay usuarios registrados</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -62,6 +64,7 @@
   <form method="post" action="/usuarios/crear" class="formGrid">
     <label>Usuario (login) <input name="usuario" required autocomplete="off" placeholder="ej: operaciones"></label>
     <label>Nombre completo <input name="nombre" required></label>
+    <label>Correo electrónico <input name="correo" type="email" required autocomplete="email" placeholder="correo@ejemplo.com"></label>
     <label>Contraseña <input name="clave" type="password" required autocomplete="new-password"></label>
     <label>Rol
       <select name="role" required>
@@ -86,6 +89,7 @@
   <div class="detailGrid">
     <div class="detailRow"><span class="detailLabel">Usuario</span><span class="detailValue">{{ view_item.usuario }}</span></div>
     <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Correo</span><span class="detailValue">{{ view_item.correo or '—' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Contraseña</span><span class="detailValue">••••••••</span></div>
     <div class="detailRow"><span class="detailLabel">Rol</span><span class="detailValue">{% if view_item.role == 'administrador_sistema' %}Administrador del Sistema{% elif view_item.role == 'encargado_negocio' %}Encargado de Negocio{% else %}{{ view_item.role }}{% endif %}</span></div>
     <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ 'ACTIVO' if view_item.activo else 'INACTIVO' }}</span></div>
@@ -105,6 +109,7 @@
       <input value="{{ edit_item.usuario }}" disabled>
     </label>
     <label>Nombre completo <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>Correo electrónico <input name="correo" type="email" value="{{ edit_item.correo or '' }}" required autocomplete="email"></label>
     <label>Nueva contraseña <input name="clave" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiar"></label>
     <label>Rol
       <select name="role" required>

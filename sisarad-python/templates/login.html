@@ -12,7 +12,10 @@
       <h1 class="loginTitle">SISARAD</h1>
       <p class="loginSubtitle">Sistema de Inventario y Despachos</p>
       {% if error %}
-      <div class="alert alertError">{{ error }}</div>
+      <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
+      {% endif %}
+      {% if msg %}
+      <div class="alert alertSuccess">{{ msg | replace('+', ' ') }}</div>
       {% endif %}
       <form method="post" action="/login" class="formGrid">
         <label>Usuario
@@ -23,6 +26,9 @@
         </label>
         <button type="submit" class="buttonPrimary">Ingresar</button>
       </form>
+      <p class="loginFooter">
+        <a href="/recuperar-contrasena" class="loginLink">¿Olvidaste tu contraseña?</a>
+      </p>
     </div>
   </div>
 </body>

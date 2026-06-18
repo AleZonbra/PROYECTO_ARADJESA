@@ -20,6 +20,9 @@
       <label>Nombre completo
         <input name="nombre" value="{{ perfil.nombre }}" required>
       </label>
+      <label>Correo electrónico
+        <input name="correo" type="email" value="{{ perfil.correo or '' }}" required autocomplete="email">
+      </label>
 
       <div class="accountSection">
         <h2 class="accountSectionTitle">Cambiar contraseña</h2>
