@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Reporte de inventario — SISARAD{% endblock %}
+{% block content %}
+<div class="page reportPage">
+  <div class="reportHeader">
+    <div>
+      <h1 class="title">Reporte de inventario</h1>
+      <p class="subtitle">Generado el {{ reporte.fecha_generacion }}</p>
+    </div>
+    <div class="reportActions noPrint">
+      <button type="button" class="buttonPrimary" onclick="window.print()">Imprimir / PDF</button>
+      <a href="/productos" class="buttonSecondary">Volver a inventario</a>
+    </div>
+  </div>
+
+  <div class="cardGrid reportKpiGrid">
+    <div class="card"><div class="cardLabel">Productos registrados</div><div class="cardValue">{{ reporte.total_productos }}</div></div>
+    <div class="card"><div class="cardLabel">Unidades en stock</div><div class="cardValue">{{ reporte.total_unidades }}</div></div>
+    <div class="card"><div class="cardLabel">Sin stock</div><div class="cardValue">{{ reporte.sin_stock|length }}</div></div>
+    <div class="card"><div class="cardLabel">Stock crítico (≤20)</div><div class="cardValue">{{ reporte.stock_critico|length }}</div></div>
+  </div>
+
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Recomendaciones para decisiones</h2>
+    <ul class="reportList">
+      {% for item in reporte.recomendaciones %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% if reporte.entrada_por_proveedor %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Entradas por proveedor (origen logístico)</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Proveedor</th><th>Empresa</th><th>Productos</th><th>Unidades en stock</th></tr></thead>
+        <tbody>
+          {% for item in reporte.entrada_por_proveedor %}
+          <tr><td>{{ item.proveedor }}</td><td>{{ item.empresa }}</td><td>{{ item.productos }}</td><td>{{ item.unidades }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if reporte.sin_proveedor %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Productos sin proveedor de entrada</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Lote</th><th>Stock</th></tr></thead>
+        <tbody>
+          {% for item in reporte.sin_proveedor %}
+          <tr><td>{{ item.producto }}</td><td>{{ item.lote }}</td><td>{{ item.cantidad }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if reporte.vencidos %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Productos vencidos</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Proveedor</th><th>Lote</th><th>Stock</th><th>Vence</th><th>Días</th></tr></thead>
+        <tbody>
+          {% for item in reporte.vencidos %}
+          <tr><td>{{ item.producto }}</td><td>{{ item.proveedor }}</td><td>{{ item.lote }}</td><td>{{ item.cantidad }}</td><td>{{ item.fecha_expiracion }}</td><td>{{ item.dias }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if reporte.proximos_vencer %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Próximos a vencer (30 días)</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Proveedor</th><th>Lote</th><th>Stock</th><th>Vence</th><th>Días restantes</th></tr></thead>
+        <tbody>
+          {% for item in reporte.proximos_vencer %}
+          <tr><td>{{ item.producto }}</td><td>{{ item.proveedor }}</td><td>{{ item.lote }}</td><td>{{ item.cantidad }}</td><td>{{ item.fecha_expiracion }}</td><td>{{ item.dias }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if reporte.stock_bajo %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Stock bajo (≤50 unidades)</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Proveedor</th><th>Lote</th><th>Stock</th><th>Expiración</th></tr></thead>
+        <tbody>
+          {% for item in reporte.stock_bajo %}
+          <tr><td>{{ item.producto }}</td><td>{{ item.proveedor }}</td><td>{{ item.lote }}</td><td>{{ item.cantidad }}</td><td>{{ item.fecha_expiracion }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Inventario completo</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Proveedor (entrada)</th><th>Lote</th><th>Stock</th><th>Producción</th><th>Expiración</th></tr></thead>
+        <tbody>
+          {% for item in reporte.inventario_completo %}
+          <tr><td>{{ item.producto }}</td><td>{{ item.proveedor }}</td><td>{{ item.lote }}</td><td>{{ item.cantidad }}</td><td>{{ item.fecha_produccion }}</td><td>{{ item.fecha_expiracion }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

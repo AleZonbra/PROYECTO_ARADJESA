@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SISARAD — Recuperar contraseña</title>
+  <title>SISARAD — Verificar código</title>
   <link rel="stylesheet" href="/static/css/sisarad.css">
 </head>
 <body>
@@ -13,32 +13,32 @@
         <img src="/static/images/logo.png" alt="Distribuidora ARADJESA C.A." class="loginLogo">
       </div>
       <div class="loginCardBody">
-        <p class="recoveryStep">Paso 1 de 3</p>
-        <h1 class="loginTitle">Recuperar contraseña</h1>
-        <p class="loginSubtitle">Ingresa tu usuario y el correo registrado. Te enviaremos un código de verificación.</p>
+        <p class="recoveryStep">Paso 2 de 3</p>
+        <h1 class="loginTitle">Verificar código</h1>
+        <p class="loginSubtitle">Ingresa tu usuario y el código que recibiste por correo.</p>
         {% if error %}
         <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
         {% endif %}
         {% if msg %}
         <div class="alert alertSuccess">{{ msg | replace('+', ' ') }}</div>
         {% endif %}
-        <form method="post" action="/recuperar-contrasena" class="formGrid loginForm">
+        <form method="post" action="/verificar-codigo" class="formGrid loginForm">
           <label>Usuario
-            <input type="text" name="usuario" required autocomplete="username" placeholder="Tu usuario de acceso">
+            <input type="text" name="usuario" value="{{ usuario }}" required autocomplete="username" placeholder="Tu usuario de acceso">
           </label>
-          <label>Correo electrónico
-            <input type="email" name="correo" required autocomplete="email" placeholder="correo@ejemplo.com">
+          <label>Código de recuperación
+            <input type="text" name="codigo" class="inputCode" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" placeholder="Código de 6 dígitos">
           </label>
-          <button type="submit" class="buttonPrimary loginSubmit">Enviar código de recuperación</button>
+          <button type="submit" class="buttonPrimary loginSubmit">Verificar código</button>
         </form>
         <p class="loginFooter">
-          <a href="/verificar-codigo" class="loginLink">Ya tengo un código</a>
+          <a href="/recuperar-contrasena" class="loginLink">Solicitar nuevo código</a>
           <span class="loginFooterSep" aria-hidden="true">·</span>
           <a href="/login" class="loginLink">Volver al inicio de sesión</a>
         </p>
         {% if bandeja_local %}
         <p class="loginHint">
-          <a href="/bandeja-correo" class="loginLink">Abrir bandeja de correo local</a>
+          <a href="/bandeja-correo" class="loginLink">Ver código en bandeja de correo local</a>
         </p>
         {% endif %}
       </div>

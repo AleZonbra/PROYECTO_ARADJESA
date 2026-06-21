@@ -39,7 +39,9 @@ class Producto(Base):
     cantidad = Column(Integer, default=0)
     fecha_produccion = Column(String)
     fecha_expiracion = Column(String)
+    proveedor_id = Column(Integer, ForeignKey("proveedores.id"))
 
+    proveedor_rel = relationship("Proveedor", back_populates="productos")
     movimientos = relationship("Movimiento", back_populates="producto_rel")
 
 
@@ -63,6 +65,8 @@ class Proveedor(Base):
     telefono = Column(String, nullable=False)
     empresa = Column(String, nullable=False)
     estado = Column(String, default="ACTIVO")
+
+    productos = relationship("Producto", back_populates="proveedor_rel")
 
 
 class Cliente(Base):

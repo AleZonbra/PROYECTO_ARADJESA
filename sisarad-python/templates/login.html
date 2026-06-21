@@ -9,9 +9,10 @@
 <body>
   <div class="loginPage">
     <div class="loginCard">
-      <div class="imageBox">
-        <img src="/static/images/logo.png" alt="Logo SISARAD">
+      <div class="loginLogoHeader">
+        <img src="/static/images/logo.png" alt="Distribuidora ARADJESA C.A." class="loginLogo">
       </div>
+      <div class="loginCardBody">
       <h1 class="loginTitle">SISARAD</h1>
       <p class="loginSubtitle">Sistema de Seguimiento Logístico</p>
       {% if error %}
@@ -20,18 +21,19 @@
       {% if msg %}
       <div class="alert alertSuccess">{{ msg | replace('+', ' ') }}</div>
       {% endif %}
-      <form method="post" action="/login" class="formGrid">
+      <form method="post" action="/login" class="formGrid loginForm">
         <label>Usuario
-          <input type="text" name="usuario" required autocomplete="username" placeholder="admin o encargado">
+          <input type="text" name="usuario" required autocomplete="username" placeholder="Ingresa tu usuario">
         </label>
         <label>Contraseña
-          <input type="password" name="clave" required autocomplete="current-password" placeholder="Tu contraseña">
+          <input type="password" name="clave" required autocomplete="current-password" placeholder="Ingresa tu contraseña">
         </label>
-        <button type="submit" class="buttonPrimary">Ingresar</button>
+        <button type="submit" class="buttonPrimary loginSubmit">Ingresar</button>
       </form>
       <p class="loginFooter">
         <a href="/recuperar-contrasena" class="loginLink">¿Olvidaste tu contraseña?</a>
       </p>
+      </div>
     </div>
   </div>
 </body>

@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.models import Cliente, Movimiento, Producto, Proveedor, Usuario, Vendedor
+from app.roles import normalizar_rol
 from app.services import movimientos_service
 
 
@@ -37,13 +38,17 @@ def seed_usuarios(db: Session):
         else:
             db.add(Usuario(**datos, activo=True))
     for usuario in db.query(Usuario).all():
-        if usuario.role == "administrador":
-            usuario.role = "administrador_sistema"
+        rol = normalizar_rol(usuario.role)
+        if rol and rol != usuario.role:
+            usuario.role = rol
     db.commit()
 
 
 def seed_productos(db: Session):
     if db.query(Producto).count() > 0:
+        return
+    proveedores = db.query(Proveedor).order_by(Proveedor.id).all()
+    if not proveedores:
         return
     datos = [
         ("ARROZ PREMIUM 1KG", "LOT-2026-001", 120, "01/01/2026", "01/01/2027"),
@@ -62,7 +67,8 @@ def seed_productos(db: Session):
         ("DETERGENTE 1KG", "LOT-2026-014", 70, "10/02/2026", "10/10/2027"),
         ("PAPEL HIGIÉNICO 4U", "LOT-2026-015", 45, "12/02/2026", "12/12/2028"),
     ]
-    for d in datos:
+    for idx, d in enumerate(datos):
+        proveedor = proveedores[idx % len(proveedores)]
         db.add(
             Producto(
                 producto=d[0],
@@ -70,6 +76,7 @@ def seed_productos(db: Session):
                 cantidad=d[2],
                 fecha_produccion=d[3],
                 fecha_expiracion=d[4],
+                proveedor_id=proveedor.id,
             )
         )
     db.commit()
@@ -174,8 +181,8 @@ def seed_movimientos(db: Session):
 
 def inicializar_datos(db: Session):
     seed_usuarios(db)
-    seed_productos(db)
     seed_vendedores(db)
     seed_proveedores(db)
+    seed_productos(db)
     seed_clientes(db)
     seed_movimientos(db)

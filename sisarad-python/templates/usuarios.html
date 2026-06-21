@@ -45,7 +45,7 @@
             </td>
             <td><span class="badge {% if item.activo %}badgeActive{% else %}badgeInactive{% endif %}">{{ 'ACTIVO' if item.activo else 'INACTIVO' }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/usuarios', item.id, list_qs, '¿Eliminar usuario?') }}
+              {{ actions.render('/usuarios', item.id, list_qs, '¿Eliminar usuario?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}

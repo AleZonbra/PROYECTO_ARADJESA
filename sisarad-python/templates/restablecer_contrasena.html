@@ -3,30 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SISARAD — Restablecer contraseña</title>
+  <title>SISARAD — Nueva contraseña</title>
   <link rel="stylesheet" href="/static/css/sisarad.css">
 </head>
 <body>
   <div class="loginPage">
     <div class="loginCard">
-      <h1 class="loginTitle">Nueva contraseña</h1>
-      <p class="loginSubtitle">Usuario: <strong>{{ usuario }}</strong></p>
-      {% if error %}
-      <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
-      {% endif %}
-      <form method="post" action="/restablecer-contrasena" class="formGrid">
-        <input type="hidden" name="token" value="{{ token }}">
-        <label>Nueva contraseña
-          <input type="password" name="clave" required autocomplete="new-password" minlength="4">
-        </label>
-        <label>Confirmar contraseña
-          <input type="password" name="clave_confirmar" required autocomplete="new-password" minlength="4">
-        </label>
-        <button type="submit" class="buttonPrimary">Guardar contraseña</button>
-      </form>
-      <p class="loginFooter">
-        <a href="/login" class="loginLink">Volver al inicio de sesión</a>
-      </p>
+      <div class="loginLogoHeader">
+        <img src="/static/images/logo.png" alt="Distribuidora ARADJESA C.A." class="loginLogo">
+      </div>
+      <div class="loginCardBody">
+        <p class="recoveryStep">Paso 3 de 3</p>
+        <h1 class="loginTitle">Nueva contraseña</h1>
+        <p class="loginSubtitle">Usuario: <strong>{{ usuario }}</strong>. Define tu nueva contraseña de acceso.</p>
+        {% if error %}
+        <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
+        {% endif %}
+        {% if msg %}
+        <div class="alert alertSuccess">{{ msg | replace('+', ' ') }}</div>
+        {% endif %}
+        <form method="post" action="/restablecer-contrasena" class="formGrid loginForm">
+          <label>Nueva contraseña
+            <input type="password" name="clave" required autocomplete="new-password" minlength="4" placeholder="Nueva contraseña">
+          </label>
+          <label>Confirmar contraseña
+            <input type="password" name="clave_confirmar" required autocomplete="new-password" minlength="4" placeholder="Repite la contraseña">
+          </label>
+          <button type="submit" class="buttonPrimary loginSubmit">Guardar contraseña</button>
+        </form>
+        <p class="loginFooter">
+          <a href="/verificar-codigo?usuario={{ usuario }}" class="loginLink">Volver a verificar código</a>
+          <span class="loginFooterSep" aria-hidden="true">·</span>
+          <a href="/login" class="loginLink">Iniciar sesión</a>
+        </p>
+      </div>
     </div>
   </div>
 </body>

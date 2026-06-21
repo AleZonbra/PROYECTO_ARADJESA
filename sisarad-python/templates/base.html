@@ -34,30 +34,9 @@
       <nav class="navBar" id="navBar">
         <button type="button" class="closeButton" id="closeNavBtn" aria-label="Cerrar menú">&times;</button>
         <ul class="ulNavBar">
-          {% if 'inicio' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'inicio' %}active{% endif %}"><a href="/inicio">Inicio</a></li>
-          {% endif %}
-          {% if 'productos' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'productos' %}active{% endif %}"><a href="/productos">Productos</a></li>
-          {% endif %}
-          {% if 'vendedores' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'vendedores' %}active{% endif %}"><a href="/vendedores">Vendedores</a></li>
-          {% endif %}
-          {% if 'proveedores' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'proveedores' %}active{% endif %}"><a href="/proveedores">Proveedores</a></li>
-          {% endif %}
-          {% if 'clientes' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'clientes' %}active{% endif %}"><a href="/clientes">Clientes</a></li>
-          {% endif %}
-          {% if 'despachos' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'despachos' %}active{% endif %}"><a href="/despachos">Despachos</a></li>
-          {% endif %}
-          {% if 'usuarios' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'usuarios' %}active{% endif %}"><a href="/usuarios">Usuarios</a></li>
-          {% endif %}
-          {% if 'mi_cuenta' in modulos_permitidos %}
-          <li class="liNavBar {% if active == 'mi_cuenta' %}active{% endif %}"><a href="/mi-cuenta">Mi cuenta</a></li>
-          {% endif %}
+          {% for item in menu_items|default([]) %}
+          <li class="liNavBar {% if active == item.modulo %}active{% endif %}"><a href="{{ item.ruta }}">{{ item.etiqueta }}</a></li>
+          {% endfor %}
         </ul>
       </nav>
     </div>

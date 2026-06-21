@@ -1,9 +1,8 @@
-from collections import defaultdict
 from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Cliente, Movimiento, Producto, Vendedor
+from app.models import Movimiento, Producto
 
 
 def _parse_fecha(fecha_str: str):
@@ -22,34 +21,16 @@ def _es_semana_actual(fecha_str: str) -> bool:
 
 
 def obtener_resumen_semanal(db: Session):
-    movimientos = (
-        db.query(Movimiento)
-        .options(
-            joinedload(Movimiento.producto_rel),
-            joinedload(Movimiento.vendedor_rel),
-            joinedload(Movimiento.cliente_rel),
-        )
-        .all()
-    )
+    movimientos = db.query(Movimiento).all()
     semana = [m for m in movimientos if _es_semana_actual(m.fecha_salida)]
 
     vendedores = {m.vendedor_id for m in semana}
     clientes = {m.cliente_id for m in semana}
     unidades = sum(m.cantidad for m in semana)
 
-    ventas_por_vendedor = defaultdict(int)
-    ventas_por_producto = defaultdict(int)
-    for m in semana:
-        if m.vendedor_rel:
-            ventas_por_vendedor[m.vendedor_rel.nombre] += m.cantidad
-        if m.producto_rel:
-            ventas_por_producto[m.producto_rel.producto] += m.cantidad
-
-    lider = max(ventas_por_vendedor, key=ventas_por_vendedor.get) if ventas_por_vendedor else "NINGUNO"
-    top_producto = max(ventas_por_producto, key=ventas_por_producto.get) if ventas_por_producto else "NINGUNO"
-
     productos_vencer = (
         db.query(Producto)
+        .options(joinedload(Producto.proveedor_rel))
         .filter(Producto.fecha_expiracion.isnot(None))
         .order_by(Producto.fecha_expiracion)
         .limit(4)
@@ -61,7 +42,5 @@ def obtener_resumen_semanal(db: Session):
         "vendedores_activos_semana": len(vendedores),
         "clientes_atendidos_semana": len(clientes),
         "despachos_procesados_semana": len(semana),
-        "lider_ventas_semana": lider,
-        "producto_mas_despachado_semana": top_producto,
         "productos_proximos_vencer": productos_vencer,
     }

@@ -11,29 +11,35 @@
       <input class="searchInput" type="search" name="q" placeholder="Buscar despacho..." value="{{ search }}">
       <button type="submit" class="buttonSecondary">Buscar</button>
     </form>
+    {% if puede_reporte_despachos %}
+    <a href="/despachos/reporte" class="buttonSecondary">Generar reporte</a>
+    {% endif %}
+    {% if puede_crear %}
     <a href="/despachos?nuevo=1" class="buttonPrimary">Nuevo despacho</a>
+    {% endif %}
   </div>
   <div class="panel">
     <div class="tableWrapper">
       <table class="table">
         <thead>
-          <tr><th>Producto</th><th>Vendedor</th><th>Cliente</th><th>Cantidad</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr>
+          <tr><th>Producto</th><th>Proveedor</th><th>Vendedor</th><th>Cliente</th><th>Cantidad</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr>
         </thead>
         <tbody>
           {% for item in paged.records %}
           <tr>
             <td>{{ item.producto_rel.producto if item.producto_rel else '-' }}</td>
+            <td>{{ item.producto_rel.proveedor_rel.nombre if item.producto_rel and item.producto_rel.proveedor_rel else '-' }}</td>
             <td>{{ item.vendedor_rel.nombre if item.vendedor_rel else '-' }}</td>
             <td>{{ item.cliente_rel.nombre if item.cliente_rel else '-' }}</td>
             <td>{{ item.cantidad }}</td>
             <td>{{ item.fecha_salida }}</td>
             <td><span class="badge {% if item.estado_despacho == 'ENTREGADO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado_despacho }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/despachos', item.id, list_qs, '¿Eliminar despacho? Se restaurará el stock.') }}
+              {{ actions.render('/despachos', item.id, list_qs, '¿Eliminar despacho? Se restaurará el stock.', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="7" class="emptyRow">No hay despachos</td></tr>
+          <tr><td colspan="8" class="emptyRow">No hay despachos</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -48,7 +54,7 @@
   <form method="post" action="/despachos/crear" class="formGrid">
     <label>Producto
       <select name="producto_id" required>
-        {% for p in productos %}<option value="{{ p.id }}">{{ p.producto }} (stock: {{ p.cantidad }})</option>{% endfor %}
+        {% for p in productos %}<option value="{{ p.id }}">{{ p.producto }} — {{ p.proveedor_rel.nombre if p.proveedor_rel else 'Sin proveedor' }} (stock: {{ p.cantidad }})</option>{% endfor %}
       </select>
     </label>
     <label>Vendedor
@@ -79,6 +85,7 @@
   <div class="detailGrid">
     <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
     <div class="detailRow"><span class="detailLabel">Producto</span><span class="detailValue">{{ view_item.producto_rel.producto if view_item.producto_rel else '-' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Proveedor (entrada)</span><span class="detailValue">{{ view_item.producto_rel.proveedor_rel.nombre if view_item.producto_rel and view_item.producto_rel.proveedor_rel else '-' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Vendedor</span><span class="detailValue">{{ view_item.vendedor_rel.nombre if view_item.vendedor_rel else '-' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Cliente</span><span class="detailValue">{{ view_item.cliente_rel.nombre if view_item.cliente_rel else '-' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Cantidad</span><span class="detailValue">{{ view_item.cantidad }}</span></div>
@@ -87,7 +94,9 @@
   </div>
   <div class="modalActions">
     <a href="/despachos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    {% if puede_editar %}
     <a href="/despachos?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+    {% endif %}
   </div>
 </div></div>
 {% endif %}

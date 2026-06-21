@@ -747,6 +747,7 @@ body {
 /* Login */
 .loginPage {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -757,10 +758,61 @@ body {
 .loginCard {
   background: #fff;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 0;
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.loginLogoHeader {
+  padding: 1.75rem 2rem 0.25rem;
+  background: #fff;
+  text-align: center;
+}
+
+.loginLogo {
+  display: block;
+  width: min(188px, 68%);
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 32, 96, 0.14);
+}
+
+.loginCardBody {
+  padding: 1.25rem 2rem 2rem;
+}
+
+.loginCardWide {
+  max-width: 440px;
+}
+
+.loginPage .loginForm {
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.loginPage .loginForm label {
+  gap: 0.45rem;
+}
+
+.loginPage .loginSubmit {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.loginPage .inputCode {
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.loginPage .alert {
+  margin-bottom: 0.25rem;
 }
 
 .loginTitle {
@@ -773,12 +825,23 @@ body {
 .loginSubtitle {
   text-align: center;
   color: #64748b;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.75rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
 .loginFooter {
-  margin: 1.25rem 0 0;
+  margin: 1.75rem 0 0;
+  padding-top: 1.15rem;
+  border-top: 1px solid #e2e8f0;
   text-align: center;
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+
+.loginFooterSep {
+  color: #94a3b8;
+  margin: 0 0.4rem;
 }
 
 .loginLink {
@@ -789,6 +852,128 @@ body {
 
 .loginLink:hover {
   text-decoration: underline;
+}
+
+.loginHint {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+}
+
+.recoveryStep {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mailCard {
+  max-width: 560px;
+}
+
+.mailList {
+  display: grid;
+  gap: 1rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+}
+
+.mailItem {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.mailItemHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: #002060;
+}
+
+.mailDate {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mailMeta {
+  margin: 0 0 0.75rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.mailBody {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #1e293b;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem;
+}
+
+.mailEmpty {
+  margin-bottom: 0.5rem;
+}
+
+.reportPage .reportHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.reportKpiGrid {
+  margin-bottom: 1rem;
+}
+
+.reportPanel {
+  margin-bottom: 1rem;
+}
+
+.reportList {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+@media print {
+  .header,
+  .navContainer,
+  .noPrint,
+  .actionMenu {
+    display: none !important;
+  }
+
+  .appBody > main,
+  .page {
+    padding: 0 !important;
+  }
+
+  .panel,
+  .card {
+    break-inside: avoid;
+  }
 }
 
 @media (max-width: 992px) {
@@ -1006,8 +1191,12 @@ body {
     text-align: center;
   }
 
-  .loginCard {
-    padding: 1.5rem;
+  .loginCardBody {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .loginLogoHeader {
+    padding: 0;
   }
 
   .loginTitle {
@@ -1068,22 +1257,4 @@ body {
 
 body.navOpen {
   overflow: hidden;
-}
-
-.imageBox {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 1.2rem;
-  border: 2px solid #ccc;
-  border-radius: 18px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-}
-.imageBox img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
 }

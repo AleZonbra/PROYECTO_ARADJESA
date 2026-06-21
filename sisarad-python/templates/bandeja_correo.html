@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SISARAD — Bandeja de correo</title>
+  <link rel="stylesheet" href="/static/css/sisarad.css">
+</head>
+<body>
+  <div class="loginPage">
+    <div class="loginCard loginCardWide mailCard">
+      <div class="loginLogoHeader">
+        <img src="/static/images/logo.png" alt="Distribuidora ARADJESA C.A." class="loginLogo">
+      </div>
+      <div class="loginCardBody">
+        <h1 class="loginTitle">Bandeja de correo</h1>
+        <p class="loginSubtitle">Correos enviados por el sistema en modo local. Aquí aparece el código de recuperación.</p>
+
+        {% if correos %}
+        <div class="mailList">
+          {% for item in correos %}
+          <article class="mailItem">
+            <div class="mailItemHeader">
+              <strong>{{ item.asunto }}</strong>
+              <span class="mailDate">{{ item.fecha }}</span>
+            </div>
+            <p class="mailMeta">Para: {{ item.destinatario }}</p>
+            <pre class="mailBody">{{ item.cuerpo }}</pre>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="panel mailEmpty">
+          <p class="emptyRow">Aún no hay correos. Solicita recuperación de contraseña para generar uno.</p>
+        </div>
+        {% endif %}
+
+        <p class="loginFooter">
+          <a href="/verificar-codigo" class="loginLink">Verificar código</a>
+          <span class="loginFooterSep" aria-hidden="true">·</span>
+          <a href="/recuperar-contrasena" class="loginLink">Recuperar contraseña</a>
+          <span class="loginFooterSep" aria-hidden="true">·</span>
+          <a href="/login" class="loginLink">Iniciar sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

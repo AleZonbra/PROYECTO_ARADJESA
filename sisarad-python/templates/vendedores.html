@@ -25,7 +25,7 @@
             <td>{{ item.trabajos_realizados }}</td>
             <td><span class="badge {% if item.estado == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/vendedores', item.id, list_qs, '¿Eliminar vendedor?') }}
+              {{ actions.render('/vendedores', item.id, list_qs, '¿Eliminar vendedor?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}

@@ -1,6 +1,7 @@
 .venv/
 sisarad-python/.venv/
 sisarad-python/data/
+sisarad-python/.env
 legacy/
 sisarad-backend/sisarad/data/
 sisarad-backend/sisarad/target/

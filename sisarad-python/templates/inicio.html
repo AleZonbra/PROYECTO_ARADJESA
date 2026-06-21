@@ -26,17 +26,13 @@
   </div>
 
   <div class="panel">
-    <p class="panelHighlight"><strong>Líder de ventas:</strong> {{ resumen.lider_ventas_semana }}</p>
-    <p class="panelHighlight"><strong>Producto más despachado:</strong> {{ resumen.producto_mas_despachado_semana }}</p>
-  </div>
-
-  <div class="panel">
     <h2 class="sectionTitle">Productos próximos a vencer</h2>
     <div class="tableWrapper">
       <table class="table">
         <thead>
           <tr>
             <th>Producto</th>
+            <th>Proveedor</th>
             <th>Lote</th>
             <th>Stock</th>
             <th>Vence</th>
@@ -46,12 +42,13 @@
           {% for p in resumen.productos_proximos_vencer %}
           <tr>
             <td>{{ p.producto }}</td>
+            <td>{{ p.proveedor_rel.nombre if p.proveedor_rel else '—' }}</td>
             <td>{{ p.serial_lote }}</td>
             <td>{{ p.cantidad }}</td>
             <td>{{ p.fecha_expiracion }}</td>
           </tr>
           {% else %}
-          <tr><td colspan="4" class="emptyRow">Sin productos registrados</td></tr>
+          <tr><td colspan="5" class="emptyRow">Sin productos registrados</td></tr>
           {% endfor %}
         </tbody>
       </table>

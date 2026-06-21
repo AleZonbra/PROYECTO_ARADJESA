@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Reporte de despachos — SISARAD{% endblock %}
+{% block content %}
+<div class="page reportPage">
+  <div class="reportHeader">
+    <div>
+      <h1 class="title">Reporte de despachos</h1>
+      <p class="subtitle">Generado el {{ reporte.fecha_generacion }}</p>
+    </div>
+    <div class="reportActions noPrint">
+      <button type="button" class="buttonPrimary" onclick="window.print()">Imprimir / PDF</button>
+      <a href="/despachos" class="buttonSecondary">Volver a despachos</a>
+    </div>
+  </div>
+
+  <div class="cardGrid reportKpiGrid">
+    <div class="card"><div class="cardLabel">Total despachos</div><div class="cardValue">{{ reporte.total_despachos }}</div></div>
+    <div class="card"><div class="cardLabel">Pendientes</div><div class="cardValue">{{ reporte.pendientes_count }}</div></div>
+    <div class="card"><div class="cardLabel">Entregados</div><div class="cardValue">{{ reporte.entregados_count }}</div></div>
+    <div class="card"><div class="cardLabel">Despachos esta semana</div><div class="cardValue">{{ reporte.despachos_semana }}</div></div>
+  </div>
+
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Recomendaciones para decisiones</h2>
+    <ul class="reportList">
+      {% for item in reporte.recomendaciones %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="cardGrid reportKpiGrid">
+    <div class="panel reportPanel">
+      <h2 class="sectionTitle">Top productos despachados</h2>
+      <div class="tableWrapper">
+        <table class="table">
+          <thead><tr><th>Producto</th><th>Unidades</th></tr></thead>
+          <tbody>
+            {% for item in reporte.top_productos %}
+            <tr><td>{{ item.nombre }}</td><td>{{ item.unidades }}</td></tr>
+            {% else %}
+            <tr><td colspan="2" class="emptyRow">Sin datos</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel reportPanel">
+      <h2 class="sectionTitle">Top clientes atendidos</h2>
+      <div class="tableWrapper">
+        <table class="table">
+          <thead><tr><th>Cliente</th><th>Unidades</th></tr></thead>
+          <tbody>
+            {% for item in reporte.top_clientes %}
+            <tr><td>{{ item.nombre }}</td><td>{{ item.unidades }}</td></tr>
+            {% else %}
+            <tr><td colspan="2" class="emptyRow">Sin datos</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel reportPanel">
+      <h2 class="sectionTitle">Top proveedores en despachos</h2>
+      <div class="tableWrapper">
+        <table class="table">
+          <thead><tr><th>Proveedor (entrada)</th><th>Unidades despachadas</th></tr></thead>
+          <tbody>
+            {% for item in reporte.top_proveedores %}
+            <tr><td>{{ item.nombre }}</td><td>{{ item.unidades }}</td></tr>
+            {% else %}
+            <tr><td colspan="2" class="emptyRow">Sin datos</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Trazabilidad logística (Entrada → Entrega)</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Proveedor (entrada)</th><th>Producto</th><th>Lote</th><th>Cliente (salida)</th><th>Cantidad</th><th>Fecha</th><th>Etapa</th></tr></thead>
+        <tbody>
+          {% for item in reporte.trazabilidad %}
+          <tr>
+            <td>{{ item.entrada }}</td>
+            <td>{{ item.producto }}</td>
+            <td>{{ item.lote }}</td>
+            <td>{{ item.salida }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.fecha }}</td>
+            <td>{{ item.etapa }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="emptyRow">Sin despachos registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if reporte.pendientes %}
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Despachos pendientes de entrega</h2>
+    <div class="tableWrapper">
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Proveedor</th><th>Cliente</th><th>Vendedor</th><th>Cantidad</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for item in reporte.pendientes %}
+          <tr>
+            <td>{{ item.producto }}</td>
+            <td>{{ item.proveedor }}</td>
+            <td>{{ item.cliente }}</td>
+            <td>{{ item.vendedor }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.fecha }}</td>
+            <td>{{ item.estado }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="panel reportPanel">
+    <h2 class="sectionTitle">Resumen operativo</h2>
+    <p class="panelHighlight"><strong>Unidades pendientes de entrega:</strong> {{ reporte.unidades_pendientes }}</p>
+    <p class="panelHighlight"><strong>Unidades entregadas:</strong> {{ reporte.unidades_entregadas }}</p>
+    <p class="panelHighlight"><strong>Unidades movidas esta semana:</strong> {{ reporte.unidades_semana }}</p>
+  </div>
+</div>
+{% endblock %}

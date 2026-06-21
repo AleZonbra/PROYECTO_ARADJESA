@@ -1,14 +1,18 @@
-{% macro render(module, item_id, list_qs='', confirm='¿Eliminar registro?') %}
+{% macro render(module, item_id, list_qs='', confirm='¿Eliminar registro?', can_edit=true, can_delete=true) %}
 <div class="actionMenu">
   <button type="button" class="actionMenuBtn" aria-label="Abrir acciones" aria-haspopup="true" aria-expanded="false">
     <span class="actionMenuDots" aria-hidden="true"><span></span><span></span><span></span></span>
   </button>
   <div class="actionMenuDropdown">
     <a class="actionMenuItem" href="{{ module }}?ver={{ item_id }}{{ list_qs }}">Ver</a>
+    {% if can_edit %}
     <a class="actionMenuItem" href="{{ module }}?edit={{ item_id }}{{ list_qs }}">Editar</a>
+    {% endif %}
+    {% if can_delete %}
     <form method="post" action="{{ module }}/{{ item_id }}/eliminar" class="actionMenuForm" onsubmit="return confirm('{{ confirm }}')">
       <button type="submit" class="actionMenuItem actionMenuItemDanger">Eliminar</button>
     </form>
+    {% endif %}
   </div>
 </div>
 {% endmacro %}

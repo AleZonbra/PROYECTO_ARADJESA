@@ -23,8 +23,14 @@ def correo_valido(correo: str) -> bool:
     return bool(CORREO_RE.match(normalizar_correo(correo)))
 
 
-def _hash_token(token: str) -> str:
-    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+def _hash_codigo(codigo: str) -> str:
+    return hashlib.sha256(codigo.strip().encode("utf-8")).hexdigest()
+
+
+def _generar_codigo() -> str:
+    longitud = config.PASSWORD_RESET_CODE_LENGTH
+    maximo = 10**longitud
+    return str(secrets.randbelow(maximo)).zfill(longitud)
 
 
 def _invalidar_tokens_previos(db: Session, usuario_id: str):
@@ -32,6 +38,42 @@ def _invalidar_tokens_previos(db: Session, usuario_id: str):
         PasswordResetToken.usuario_id == usuario_id,
         PasswordResetToken.used == False,
     ).update({"used": True})
+
+
+def _obtener_registro_codigo(db: Session, usuario: str, codigo: str) -> tuple[PasswordResetToken | None, Usuario | None]:
+    usuario_limpio = usuario.strip().lower()
+    codigo_limpio = codigo.strip()
+
+    if not usuario_limpio or not codigo_limpio:
+        return None, None
+
+    user = (
+        db.query(Usuario)
+        .filter(Usuario.usuario == usuario_limpio, Usuario.activo == True)
+        .first()
+    )
+    if not user:
+        return None, None
+
+    registro = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.usuario_id == user.id,
+            PasswordResetToken.token_hash == _hash_codigo(codigo_limpio),
+            PasswordResetToken.used == False,
+        )
+        .first()
+    )
+    if not registro:
+        return None, user
+
+    expira = registro.expires_at
+    if expira.tzinfo is None:
+        expira = expira.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) > expira:
+        return None, user
+
+    return registro, user
 
 
 def solicitar_recuperacion(db: Session, usuario: str, correo: str) -> tuple[bool, str]:
@@ -52,85 +94,71 @@ def solicitar_recuperacion(db: Session, usuario: str, correo: str) -> tuple[bool
         .first()
     )
 
-    mensaje_generico = (
-        "Si+el+usuario+y+el+correo+coinciden,+recibirás+instrucciones+para+restablecer+tu+contraseña"
-    )
+    if config.usar_correo_local():
+        mensaje_generico = (
+            "Si+el+usuario+y+el+correo+coinciden,+el+código+estará+disponible+en+la+bandeja+de+correo"
+        )
+    else:
+        mensaje_generico = (
+            "Si+el+usuario+y+el+correo+coinciden,+recibirás+un+código+de+recuperación+en+tu+correo"
+        )
 
     if not user or not user.correo or normalizar_correo(user.correo) != correo_limpio:
         return True, mensaje_generico
 
-    token = secrets.token_urlsafe(32)
+    codigo = _generar_codigo()
     expira = datetime.now(timezone.utc) + timedelta(minutes=config.PASSWORD_RESET_EXPIRE_MINUTES)
 
     _invalidar_tokens_previos(db, user.id)
     db.add(
         PasswordResetToken(
             usuario_id=user.id,
-            token_hash=_hash_token(token),
+            token_hash=_hash_codigo(codigo),
             expires_at=expira,
             used=False,
         )
     )
     db.commit()
 
-    enlace = f"{config.APP_URL}/restablecer-contrasena?token={token}"
     cuerpo = (
         f"Hola {user.nombre},\n\n"
         "Recibimos una solicitud para restablecer tu contraseña en SISARAD.\n"
-        f"Usa este enlace (válido por {config.PASSWORD_RESET_EXPIRE_MINUTES} minutos):\n\n"
-        f"{enlace}\n\n"
+        f"Tu código de recuperación es: {codigo}\n\n"
+        f"Este código es válido por {config.PASSWORD_RESET_EXPIRE_MINUTES} minutos.\n"
+        "Ingresa el código en la pantalla de verificación y luego podrás definir "
+        "una nueva contraseña.\n\n"
         "Si no solicitaste este cambio, ignora este mensaje.\n\n"
         "— SISARAD"
     )
 
-    if email_service.enviar_correo(user.correo, "Restablecer contraseña — SISARAD", cuerpo):
-        return True, mensaje_generico
-
-    logger.warning("Recuperación para %s — enlace (SMTP no disponible): %s", user.usuario, enlace)
+    email_service.enviar_correo(user.correo, "Código de recuperación — SISARAD", cuerpo)
     return True, mensaje_generico
 
 
-def obtener_usuario_por_token(db: Session, token: str) -> Usuario | None:
-    if not token:
-        return None
-    registro = (
-        db.query(PasswordResetToken)
-        .filter(
-            PasswordResetToken.token_hash == _hash_token(token),
-            PasswordResetToken.used == False,
-        )
-        .first()
-    )
+def validar_codigo_recuperacion(
+    db: Session, usuario: str, codigo: str
+) -> tuple[bool, str, PasswordResetToken | None, Usuario | None]:
+    registro, user = _obtener_registro_codigo(db, usuario, codigo)
+    if not user:
+        return False, "Usuario+no+encontrado+o+inactivo", None, None
     if not registro:
-        return None
-    expira = registro.expires_at
-    if expira.tzinfo is None:
-        expira = expira.replace(tzinfo=timezone.utc)
-    if datetime.now(timezone.utc) > expira:
-        return None
-    return db.get(Usuario, registro.usuario_id)
+        return False, "El+código+no+es+válido+o+ha+expirado", None, user
+    return True, "", registro, user
 
 
-def restablecer_contrasena(db: Session, token: str, nueva_clave: str) -> tuple[bool, str]:
+def restablecer_contrasena(db: Session, token_id: int, nueva_clave: str) -> tuple[bool, str]:
     if not nueva_clave.strip():
         return False, "La+nueva+contraseña+es+obligatoria"
 
-    registro = (
-        db.query(PasswordResetToken)
-        .filter(
-            PasswordResetToken.token_hash == _hash_token(token),
-            PasswordResetToken.used == False,
-        )
-        .first()
-    )
-    if not registro:
-        return False, "El+enlace+no+es+válido+o+ya+fue+utilizado"
+    registro = db.get(PasswordResetToken, token_id)
+    if not registro or registro.used:
+        return False, "La+verificación+expiró.+Solicita+un+nuevo+código"
 
     expira = registro.expires_at
     if expira.tzinfo is None:
         expira = expira.replace(tzinfo=timezone.utc)
     if datetime.now(timezone.utc) > expira:
-        return False, "El+enlace+ha+expirado.+Solicita+uno+nuevo"
+        return False, "El+código+ha+expirado.+Solicita+uno+nuevo"
 
     usuario = db.get(Usuario, registro.usuario_id)
     if not usuario or not usuario.activo:

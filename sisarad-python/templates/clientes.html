@@ -11,7 +11,9 @@
       <input class="searchInput" type="search" name="q" placeholder="Buscar cliente..." value="{{ search }}">
       <button type="submit" class="buttonSecondary">Buscar</button>
     </form>
+    {% if puede_crear %}
     <a href="/clientes?nuevo=1" class="buttonPrimary">Nuevo cliente</a>
+    {% endif %}
   </div>
   <div class="panel">
     <div class="tableWrapper">
@@ -25,7 +27,7 @@
             <td>{{ item.correo }}</td>
             <td>{{ item.direccion }}</td>
             <td class="actionCell">
-              {{ actions.render('/clientes', item.id, list_qs, '¿Eliminar cliente?') }}
+              {{ actions.render('/clientes', item.id, list_qs, '¿Eliminar cliente?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
@@ -61,7 +63,9 @@
   </div>
   <div class="modalActions">
     <a href="/clientes{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
+    {% if puede_editar %}
     <a href="/clientes?edit={{ view_item.id }}{{ list_qs }}" class="buttonPrimary">Editar</a>
+    {% endif %}
   </div>
 </div></div>
 {% endif %}
