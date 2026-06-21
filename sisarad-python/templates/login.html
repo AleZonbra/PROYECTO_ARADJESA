@@ -9,8 +9,11 @@
 <body>
   <div class="loginPage">
     <div class="loginCard">
+      <div class="imageBox">
+        <img src="/static/images/logo.png" alt="Logo SISARAD">
+      </div>
       <h1 class="loginTitle">SISARAD</h1>
-      <p class="loginSubtitle">Sistema de Inventario y Despachos</p>
+      <p class="loginSubtitle">Sistema de Seguimiento Logístico</p>
       {% if error %}
       <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
       {% endif %}
