@@ -22,6 +22,33 @@ PASSWORD_RESET_CODE_LENGTH = int(os.getenv("SISARAD_RESET_CODE_LENGTH", "6"))
 
 CORREOS_DIR = BASE_DIR / "data" / "correos"
 
+EMPRESA_RAZON_SOCIAL = os.getenv("SISARAD_EMPRESA_RAZON_SOCIAL", "Distribuidora ARADJESA C.A.")
+EMPRESA_NOMBRE = os.getenv("SISARAD_EMPRESA_NOMBRE", "ARADJESA")
+EMPRESA_RIF = os.getenv("SISARAD_EMPRESA_RIF", "J-409055221")
+EMPRESA_DIRECCION = os.getenv(
+    "SISARAD_EMPRESA_DIRECCION",
+    "Sector Moriche II, Zona industrial, Maturin - Edo. Monagas.",
+)
+EMPRESA_TELEFONO = os.getenv("SISARAD_EMPRESA_TELEFONO", "+58 (424) 900 84 33")
+EMPRESA_CORREO = os.getenv("SISARAD_EMPRESA_CORREO", "")
+EMPRESA_WEB = os.getenv("SISARAD_EMPRESA_WEB", "")
+EMPRESA_SLOGAN = os.getenv("SISARAD_EMPRESA_SLOGAN", "Sistema de Seguimiento Logístico")
+EMPRESA_SISTEMA = os.getenv("SISARAD_EMPRESA_SISTEMA", "SISARAD")
+
+
+def datos_empresa() -> dict:
+    return {
+        "razon_social": EMPRESA_RAZON_SOCIAL,
+        "nombre": EMPRESA_NOMBRE,
+        "rif": EMPRESA_RIF,
+        "direccion": EMPRESA_DIRECCION,
+        "telefono": EMPRESA_TELEFONO,
+        "correo": EMPRESA_CORREO,
+        "web": EMPRESA_WEB,
+        "slogan": EMPRESA_SLOGAN,
+        "sistema": EMPRESA_SISTEMA,
+    }
+
 
 def smtp_configurado() -> bool:
     return bool(SMTP_HOST and SMTP_USER and SMTP_PASSWORD)

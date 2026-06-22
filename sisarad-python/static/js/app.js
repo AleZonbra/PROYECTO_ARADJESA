@@ -1,20 +1,64 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const menuBtn = document.getElementById("mobileMenuBtn");
+  const menuBtn = document.getElementById("menuToggleBtn");
   const navBar = document.getElementById("navBar");
   const backdrop = document.getElementById("navBackdrop");
   const closeBtn = document.getElementById("closeNavBtn");
+  const appBody = document.querySelector(".appBody");
+  const mobileQuery = window.matchMedia("(max-width: 992px)");
+  const storageKey = "sisaradSidebarOpen";
 
-  function setOpen(open) {
-    if (!navBar) return;
-    navBar.classList.toggle("open", open);
-    backdrop?.classList.toggle("visible", open);
-    menuBtn?.setAttribute("aria-expanded", open ? "true" : "false");
-    document.body.classList.toggle("navOpen", open);
+  function isMobileView() {
+    return mobileQuery.matches;
   }
 
-  menuBtn?.addEventListener("click", () => setOpen(!navBar?.classList.contains("open")));
-  closeBtn?.addEventListener("click", () => setOpen(false));
-  backdrop?.addEventListener("click", () => setOpen(false));
+  function isMenuOpen() {
+    if (!navBar || !appBody) return false;
+    if (isMobileView()) return navBar.classList.contains("open");
+    return !appBody.classList.contains("sidebarCollapsed");
+  }
+
+  function setMenuOpen(open) {
+    if (!navBar || !appBody) return;
+
+    if (isMobileView()) {
+      navBar.classList.toggle("open", open);
+      backdrop?.classList.toggle("visible", open);
+      document.body.classList.toggle("navOpen", open);
+    } else {
+      appBody.classList.toggle("sidebarCollapsed", !open);
+      localStorage.setItem(storageKey, open ? "1" : "0");
+    }
+
+    menuBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+    menuBtn?.setAttribute("aria-label", open ? "Ocultar menú" : "Mostrar menú");
+  }
+
+  function toggleMenu() {
+    setMenuOpen(!isMenuOpen());
+  }
+
+  function applyDesktopPreference() {
+    if (isMobileView()) {
+      appBody.classList.remove("sidebarCollapsed");
+      setMenuOpen(false);
+      return;
+    }
+    const saved = localStorage.getItem(storageKey);
+    setMenuOpen(saved !== "0");
+  }
+
+  menuBtn?.addEventListener("click", toggleMenu);
+  closeBtn?.addEventListener("click", () => setMenuOpen(false));
+  backdrop?.addEventListener("click", () => setMenuOpen(false));
+
+  navBar?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isMobileView()) setMenuOpen(false);
+    });
+  });
+
+  mobileQuery.addEventListener("change", applyDesktopPreference);
+  applyDesktopPreference();
 
   document.querySelectorAll(".actionMenuBtn").forEach((btn) => {
     btn.addEventListener("click", (e) => {

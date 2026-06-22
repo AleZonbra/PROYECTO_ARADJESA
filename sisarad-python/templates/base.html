@@ -6,13 +6,15 @@
   <title>{% block title %}SISARAD{% endblock %}</title>
   <link rel="stylesheet" href="/static/css/sisarad.css">
 </head>
-<body>
+<body{% if user %} class="hasSidebar"{% endif %}>
   <header class="header">
     <div class="toolbar">
       <div class="brandGroup">
-        <button type="button" class="mobileMenuButton" id="mobileMenuBtn" aria-label="Menú" aria-expanded="false">
+        {% if user %}
+        <button type="button" class="menuToggleButton" id="menuToggleBtn" aria-label="Mostrar menú" aria-expanded="true" aria-controls="navBar">
           <span></span>
         </button>
+        {% endif %}
         <a href="/inicio" class="logo">SISARAD</a>
       </div>
       {% if user %}
@@ -46,5 +48,6 @@
   </div>
 
   <script src="/static/js/app.js"></script>
+  {% block page_scripts %}{% endblock %}
 </body>
 </html>

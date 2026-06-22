@@ -1,0 +1,62 @@
+<header class="reportMembrete" id="reportMembrete">
+  <div class="reportMembreteTop">
+    <div class="reportMembreteLogoBox">
+      <img src="/static/images/logo.png" alt="{{ empresa.razon_social }}" class="reportMembreteLogo">
+    </div>
+
+    <div class="reportMembreteCompany">
+      <p class="reportMembreteLegal">{{ empresa.razon_social }}</p>
+      <p class="reportMembreteTrade">{{ empresa.nombre }} · {{ empresa.sistema }}</p>
+      {% if empresa.slogan %}
+      <p class="reportMembreteSlogan">{{ empresa.slogan }}</p>
+      {% endif %}
+      <dl class="reportMembreteData">
+        {% if empresa.rif %}
+        <div class="reportMembreteDataItem">
+          <dt>RIF</dt>
+          <dd>{{ empresa.rif }}</dd>
+        </div>
+        {% endif %}
+        {% if empresa.direccion %}
+        <div class="reportMembreteDataItem reportMembreteDataItemWide">
+          <dt>Dirección</dt>
+          <dd>{{ empresa.direccion }}</dd>
+        </div>
+        {% endif %}
+        {% if empresa.telefono %}
+        <div class="reportMembreteDataItem">
+          <dt>Teléfono</dt>
+          <dd>{{ empresa.telefono }}</dd>
+        </div>
+        {% endif %}
+        {% if empresa.correo %}
+        <div class="reportMembreteDataItem">
+          <dt>Correo</dt>
+          <dd>{{ empresa.correo }}</dd>
+        </div>
+        {% endif %}
+        {% if empresa.web %}
+        <div class="reportMembreteDataItem">
+          <dt>Web</dt>
+          <dd>{{ empresa.web }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+
+  <div class="reportMembreteDivider"></div>
+
+  <div class="reportMembreteTitleBlock">
+    <div class="reportMembreteTitleWrap">
+      <h1 class="reportMembreteTitle">{{ titulo_reporte }}</h1>
+      {% if subtitulo_reporte %}
+      <p class="reportMembreteSubtitle">{{ subtitulo_reporte }}</p>
+      {% endif %}
+      <p class="reportMembreteMetaLine">
+        {% if fecha_generacion %}<span>Generado el {{ fecha_generacion }}</span>{% endif %}
+        {% if generado_por %}<span>Emitido por {{ generado_por }}</span>{% endif %}
+      </p>
+    </div>
+  </div>
+</header>

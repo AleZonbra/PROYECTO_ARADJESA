@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.auth import require_auth
+from app.config import datos_empresa
 from app.database import Base, SessionLocal, engine
 from app.exceptions import ForbiddenError, NotAuthenticatedError
 from app.middleware.notifications import NotificationsMiddleware
@@ -22,6 +23,7 @@ app.add_middleware(SessionMiddleware, secret_key="sisarad-python-secret-key-2026
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates.env.globals["empresa"] = datos_empresa()
 app.state.templates = templates
 
 
