@@ -44,13 +44,14 @@ def reporte_inventario(db: Session):
     productos = (
         db.query(Producto)
         .options(joinedload(Producto.proveedor_rel))
+        .filter(Producto.estado == "ACTIVO")
         .order_by(Producto.producto)
         .all()
     )
     total_unidades = sum(p.cantidad or 0 for p in productos)
     sin_stock = [p for p in productos if (p.cantidad or 0) <= 0]
-    stock_bajo = [p for p in productos if 0 < (p.cantidad or 0) <= 50]
-    stock_critico = [p for p in productos if 0 < (p.cantidad or 0) <= 20]
+    stock_bajo = [p for p in productos if 0 < (p.cantidad or 0) <= (p.stock_minimo or 20) * 2]
+    stock_critico = [p for p in productos if 0 < (p.cantidad or 0) <= (p.stock_minimo or 20)]
     sin_proveedor = [p for p in productos if not p.proveedor_rel]
 
     proximos_vencer = []
@@ -122,7 +123,7 @@ def _recomendaciones_inventario(sin_stock, stock_critico, proximos_vencer, venci
         )
     if stock_critico:
         recomendaciones.append(
-            f"Planificar compra urgente de {len(stock_critico)} producto(s) con stock crítico (≤20 unidades)."
+            f"Planificar compra urgente de {len(stock_critico)} producto(s) bajo su stock mínimo."
         )
     if not recomendaciones:
         recomendaciones.append("El inventario se encuentra en niveles aceptables. Mantener monitoreo periódico.")
@@ -137,11 +138,12 @@ def reporte_despachos(db: Session):
             joinedload(Movimiento.vendedor_rel),
             joinedload(Movimiento.cliente_rel),
         )
+        .filter(Movimiento.estado == "ACTIVO")
         .order_by(Movimiento.id.desc())
         .all()
     )
 
-    pendientes = [m for m in movimientos if (m.estado_despacho or "").upper() != "ENTREGADO"]
+    pendientes = [m for m in movimientos if (m.estado_despacho or "").upper() == "POR ENTREGAR"]
     entregados = [m for m in movimientos if (m.estado_despacho or "").upper() == "ENTREGADO"]
     unidades_pendientes = sum(m.cantidad for m in pendientes)
     unidades_entregadas = sum(m.cantidad for m in entregados)

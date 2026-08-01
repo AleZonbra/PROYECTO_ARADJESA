@@ -16,20 +16,22 @@
   <div class="panel">
     <div class="tableWrapper">
       <table class="table">
-        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Empresa</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Empresa</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>
           {% for item in paged.records %}
           <tr>
             <td>{{ item.nombre }}</td>
+            <td>{{ item.rif or '—' }}</td>
             <td>{{ item.telefono }}</td>
             <td>{{ item.empresa }}</td>
+            <td>{{ item.categoria or '—' }}</td>
             <td><span class="badge {% if item.estado == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/proveedores', item.id, list_qs, '¿Eliminar proveedor?', puede_editar, puede_eliminar) }}
+              {{ actions.render('/proveedores', item.id, list_qs, '¿Desactivar proveedor?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="5" class="emptyRow">No hay proveedores</td></tr>
+          <tr><td colspan="7" class="emptyRow">No hay proveedores</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -42,8 +44,10 @@
   <h2>Nuevo proveedor</h2>
   <form method="post" action="/proveedores/crear" class="formGrid">
     <label>Nombre <input name="nombre" required></label>
+    <label>RIF <input name="rif"></label>
     <label>Teléfono <input name="telefono" required></label>
     <label>Empresa <input name="empresa" required></label>
+    <label>Categoría <input name="categoria"></label>
     <label>Estado <select name="estado"><option>ACTIVO</option><option>INACTIVO</option></select></label>
     <div class="modalActions"><a href="/proveedores" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
   </form>
@@ -55,8 +59,10 @@
   <div class="detailGrid">
     <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
     <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">RIF</span><span class="detailValue">{{ view_item.rif or '—' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Teléfono</span><span class="detailValue">{{ view_item.telefono }}</span></div>
     <div class="detailRow"><span class="detailLabel">Empresa</span><span class="detailValue">{{ view_item.empresa }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Categoría</span><span class="detailValue">{{ view_item.categoria or '—' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado }}</span></div>
   </div>
   <div class="modalActions">
@@ -70,8 +76,10 @@
   <h2>Editar proveedor</h2>
   <form method="post" action="/proveedores/{{ edit_item.id }}/actualizar" class="formGrid">
     <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>RIF <input name="rif" value="{{ edit_item.rif or '' }}"></label>
     <label>Teléfono <input name="telefono" value="{{ edit_item.telefono }}" required></label>
     <label>Empresa <input name="empresa" value="{{ edit_item.empresa }}" required></label>
+    <label>Categoría <input name="categoria" value="{{ edit_item.categoria or '' }}"></label>
     <label>Estado <select name="estado"><option {% if edit_item.estado=='ACTIVO' %}selected{% endif %}>ACTIVO</option><option {% if edit_item.estado=='INACTIVO' %}selected{% endif %}>INACTIVO</option></select></label>
     <div class="modalActions"><a href="/proveedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
   </form>

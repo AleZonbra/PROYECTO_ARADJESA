@@ -1,4 +1,4 @@
-{% macro render(module, item_id, list_qs='', confirm='¿Eliminar registro?', can_edit=true, can_delete=true) %}
+{% macro render(module, item_id, list_qs='', confirm='¿Desactivar este registro?', can_edit=true, can_delete=true, delete_label='Desactivar') %}
 <div class="actionMenu">
   <button type="button" class="actionMenuBtn" aria-label="Abrir acciones" aria-haspopup="true" aria-expanded="false">
     <span class="actionMenuDots" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -10,7 +10,7 @@
     {% endif %}
     {% if can_delete %}
     <form method="post" action="{{ module }}/{{ item_id }}/eliminar" class="actionMenuForm" onsubmit="return confirm('{{ confirm }}')">
-      <button type="submit" class="actionMenuItem actionMenuItemDanger">Eliminar</button>
+      <button type="submit" class="actionMenuItem actionMenuItemDanger">{{ delete_label }}</button>
     </form>
     {% endif %}
   </div>

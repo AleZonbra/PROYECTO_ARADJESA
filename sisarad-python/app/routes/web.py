@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app import config
@@ -20,6 +21,7 @@ from app.pagination import ITEMS_PER_PAGE, paginate
 from app.services import dashboard_service, movimientos_service, reportes_service
 from app.services import password_reset_service
 from app.services.movimientos_service import StockInsuficienteError
+from app.services.password_policy import requisitos_texto, validar_contrasena
 
 public_router = APIRouter()
 protected_router = APIRouter()
@@ -176,15 +178,68 @@ def _bloquear_edicion(request: Request, path: str):
 
 
 def _eliminar_registro(db: Session, item, path: str, ok_msg: str, blocked_msg: str):
+    """Compatibilidad: preferir desactivación lógica."""
+    return _desactivar_registro(db, item, path, ok_msg)
+
+
+def _desactivar_registro(db: Session, item, path: str, ok_msg: str):
     if not item:
         return _redirect(path, error="Registro+no+encontrado")
     try:
-        db.delete(item)
+        if hasattr(item, "activo"):
+            item.activo = False
+        if hasattr(item, "estado"):
+            item.estado = "INACTIVO"
         db.commit()
         return _redirect(path, msg=ok_msg)
-    except IntegrityError:
+    except Exception:
         db.rollback()
-        return _redirect(path, error=blocked_msg)
+        return _redirect(path, error="No+se+pudo+desactivar+el+registro")
+
+
+def _stock_minimo_sugerido(db: Session, nombre_producto: str) -> int:
+    """Estima stock mínimo por rotación reciente (últimos despachos activos)."""
+    movimientos = (
+        db.query(Movimiento)
+        .join(Producto, Movimiento.producto_id == Producto.id)
+        .filter(
+            Producto.producto == nombre_producto.strip(),
+            Movimiento.estado == "ACTIVO",
+            Movimiento.estado_despacho != "ANULADO",
+        )
+        .all()
+    )
+    if not movimientos:
+        return 20
+    total = sum(m.cantidad for m in movimientos)
+    promedio = max(1, total // max(1, len(movimientos)))
+    return max(10, min(200, promedio * 2))
+
+
+def _parse_fecha_filtro(valor: str):
+    valor = (valor or "").strip()
+    if not valor:
+        return None
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(valor, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _fecha_en_rango(fecha_str: str | None, desde, hasta) -> bool:
+    if not desde and not hasta:
+        return True
+    try:
+        fecha = datetime.strptime((fecha_str or "").strip(), "%d/%m/%Y")
+    except (TypeError, ValueError):
+        return False
+    if desde and fecha < desde:
+        return False
+    if hasta and fecha > hasta:
+        return False
+    return True
 
 
 def _tiene_despachos_producto(db: Session, producto_id: int) -> bool:
@@ -367,6 +422,7 @@ def restablecer_contrasena_page(request: Request):
             request,
             paso=3,
             usuario=sesion["usuario"],
+            password_requisitos=requisitos_texto(),
             error=request.query_params.get("error", ""),
             msg=request.query_params.get("msg", ""),
         ),
@@ -413,6 +469,7 @@ def mi_cuenta(request: Request, db: Session = Depends(get_db)):
             request,
             active="mi_cuenta",
             perfil=perfil,
+            password_requisitos=requisitos_texto(),
             msg=request.query_params.get("msg", ""),
             error=request.query_params.get("error", ""),
         ),
@@ -447,6 +504,9 @@ def mi_cuenta_actualizar(
             return _redirect("/mi-cuenta", error="Ingresa+la+nueva+contraseña")
         if clave_nueva != clave_confirmar:
             return _redirect("/mi-cuenta", error="Las+contraseñas+nuevas+no+coinciden")
+        error_politica = validar_contrasena(clave_nueva)
+        if error_politica:
+            return _redirect("/mi-cuenta", error=error_politica.replace(" ", "+"))
         perfil.clave = clave_nueva
     perfil.nombre = nombre.strip()
     perfil.correo = correo_limpio
@@ -487,6 +547,7 @@ def productos_list(request: Request, db: Session = Depends(get_db)):
     paged = paginate(items, page, ITEMS_PER_PAGE)
     edit_item = _get_producto(db, request.query_params.get("edit"))
     view_item = _get_producto(db, request.query_params.get("ver"))
+    lote_item = _get_producto(db, request.query_params.get("lote"))
     proveedores = _proveedores_activos(db)
     return request.app.state.templates.TemplateResponse(
         "productos.html",
@@ -498,6 +559,7 @@ def productos_list(request: Request, db: Session = Depends(get_db)):
             list_qs=_list_qs(page, search),
             edit_item=edit_item,
             view_item=view_item,
+            lote_item=lote_item,
             proveedores=proveedores,
             show_create=request.query_params.get("nuevo") == "1",
             msg=request.query_params.get("msg", ""),
@@ -524,23 +586,71 @@ def productos_crear(
     fecha_produccion: str = Form(""),
     fecha_expiracion: str = Form(""),
     proveedor_id: int = Form(...),
+    stock_minimo: int = Form(0),
     db: Session = Depends(get_db),
 ):
     _, error = _validar_proveedor(db, proveedor_id)
     if error:
         return _redirect("/productos", error=error)
+    nombre = producto.strip()
+    minimo = stock_minimo if stock_minimo > 0 else _stock_minimo_sugerido(db, nombre)
     db.add(
         Producto(
-            producto=producto.strip(),
+            producto=nombre,
             serial_lote=serial_lote.strip(),
             cantidad=cantidad,
             fecha_produccion=fecha_produccion.strip(),
             fecha_expiracion=fecha_expiracion.strip(),
             proveedor_id=proveedor_id,
+            stock_minimo=minimo,
+            estado="ACTIVO",
         )
     )
     db.commit()
     return _redirect("/productos", msg="Producto+creado+correctamente")
+
+
+@protected_router.post("/productos/agregar-lote", dependencies=[Depends(requiere_modulo("productos"))])
+def productos_agregar_lote(
+    producto: str = Form(...),
+    serial_lote: str = Form(...),
+    cantidad: int = Form(0),
+    fecha_produccion: str = Form(""),
+    fecha_expiracion: str = Form(""),
+    proveedor_id: int = Form(...),
+    stock_minimo: int = Form(0),
+    db: Session = Depends(get_db),
+):
+    _, error = _validar_proveedor(db, proveedor_id)
+    if error:
+        return _redirect("/productos", error=error)
+    nombre = producto.strip()
+    lote = serial_lote.strip()
+    if not nombre or not lote:
+        return _redirect("/productos", error="Producto+y+lote+son+obligatorios")
+    existente = (
+        db.query(Producto)
+        .filter(Producto.producto == nombre, Producto.serial_lote == lote, Producto.estado == "ACTIVO")
+        .first()
+    )
+    if existente:
+        return _redirect("/productos", error="Ya+existe+ese+lote+para+el+producto.+Use+otro+lote")
+    ref = db.query(Producto).filter(Producto.producto == nombre).order_by(Producto.id.desc()).first()
+    minimo = stock_minimo if stock_minimo > 0 else (ref.stock_minimo if ref and ref.stock_minimo else _stock_minimo_sugerido(db, nombre))
+    db.add(
+        Producto(
+            producto=nombre,
+            serial_lote=lote,
+            cantidad=cantidad,
+            fecha_produccion=fecha_produccion.strip(),
+            fecha_expiracion=fecha_expiracion.strip(),
+            proveedor_id=proveedor_id,
+            stock_minimo=minimo,
+            estado="ACTIVO",
+        )
+    )
+    db.commit()
+    return _redirect("/productos", msg="Lote+agregado+al+inventario")
 
 
 @protected_router.post("/productos/{item_id}/actualizar", dependencies=[Depends(requiere_modulo("productos")), Depends(requiere_editar())])
@@ -552,6 +662,8 @@ def productos_actualizar(
     fecha_produccion: str = Form(""),
     fecha_expiracion: str = Form(""),
     proveedor_id: int = Form(...),
+    stock_minimo: int = Form(20),
+    estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
     item = db.get(Producto, item_id)
@@ -566,25 +678,15 @@ def productos_actualizar(
     item.fecha_produccion = fecha_produccion.strip()
     item.fecha_expiracion = fecha_expiracion.strip()
     item.proveedor_id = proveedor_id
+    item.stock_minimo = stock_minimo if stock_minimo > 0 else 20
+    item.estado = estado if estado in ("ACTIVO", "INACTIVO") else "ACTIVO"
     db.commit()
     return _redirect("/productos", msg="Producto+actualizado")
 
 
 @protected_router.post("/productos/{item_id}/eliminar", dependencies=[Depends(requiere_modulo("productos")), Depends(requiere_eliminar())])
 def productos_eliminar(item_id: int, db: Session = Depends(get_db)):
-    item = db.get(Producto, item_id)
-    if item and _tiene_despachos_producto(db, item_id):
-        return _redirect(
-            "/productos",
-            error="No+se+puede+eliminar:+el+producto+tiene+despachos+asociados",
-        )
-    return _eliminar_registro(
-        db,
-        item,
-        "/productos",
-        "Producto+eliminado",
-        "No+se+puede+eliminar+el+producto",
-    )
+    return _desactivar_registro(db, db.get(Producto, item_id), "/productos", "Producto+desactivado")
 
 
 # --- Vendedores ---
@@ -597,7 +699,11 @@ def vendedores_list(request: Request, db: Session = Depends(get_db)):
         return bloqueo
     search = request.query_params.get("q", "")
     page = int(request.query_params.get("page", 1))
-    items = _filter_items(db.query(Vendedor).order_by(Vendedor.id).all(), search, ["nombre", "num_empleado"])
+    items = _filter_items(
+        db.query(Vendedor).order_by(Vendedor.id).all(),
+        search,
+        ["nombre", "num_empleado", "area_desempeno", "trabajos_realizados"],
+    )
     paged = paginate(items, page, ITEMS_PER_PAGE)
     edit_item = _get_by_id(db, Vendedor, request.query_params.get("edit"))
     view_item = _get_by_id(db, Vendedor, request.query_params.get("ver"))
@@ -622,11 +728,22 @@ def vendedores_list(request: Request, db: Session = Depends(get_db)):
 def vendedores_crear(
     nombre: str = Form(...),
     num_empleado: str = Form(...),
-    trabajos_realizados: str = Form(""),
+    area_desempeno: str = Form(""),
+    meta_minima: int = Form(0),
     estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
-    db.add(Vendedor(nombre=nombre.strip(), num_empleado=num_empleado.strip(), trabajos_realizados=trabajos_realizados.strip(), estado=estado))
+    area = area_desempeno.strip()
+    db.add(
+        Vendedor(
+            nombre=nombre.strip(),
+            num_empleado=num_empleado.strip(),
+            trabajos_realizados=area,
+            area_desempeno=area,
+            meta_minima=max(0, meta_minima),
+            estado=estado,
+        )
+    )
     db.commit()
     return _redirect("/vendedores", msg="Vendedor+creado")
 
@@ -636,16 +753,20 @@ def vendedores_actualizar(
     item_id: int,
     nombre: str = Form(...),
     num_empleado: str = Form(...),
-    trabajos_realizados: str = Form(""),
+    area_desempeno: str = Form(""),
+    meta_minima: int = Form(0),
     estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
     item = db.get(Vendedor, item_id)
     if not item:
         return _redirect("/vendedores", error="Vendedor+no+encontrado")
+    area = area_desempeno.strip()
     item.nombre = nombre.strip()
     item.num_empleado = num_empleado.strip()
-    item.trabajos_realizados = trabajos_realizados.strip()
+    item.trabajos_realizados = area
+    item.area_desempeno = area
+    item.meta_minima = max(0, meta_minima)
     item.estado = estado
     db.commit()
     return _redirect("/vendedores", msg="Vendedor+actualizado")
@@ -653,19 +774,7 @@ def vendedores_actualizar(
 
 @protected_router.post("/vendedores/{item_id}/eliminar", dependencies=[Depends(requiere_modulo("vendedores")), Depends(requiere_eliminar())])
 def vendedores_eliminar(item_id: int, db: Session = Depends(get_db)):
-    item = db.get(Vendedor, item_id)
-    if item and _tiene_despachos_vendedor(db, item_id):
-        return _redirect(
-            "/vendedores",
-            error="No+se+puede+eliminar:+el+vendedor+tiene+despachos+asociados",
-        )
-    return _eliminar_registro(
-        db,
-        item,
-        "/vendedores",
-        "Vendedor+eliminado",
-        "No+se+puede+eliminar+el+vendedor",
-    )
+    return _desactivar_registro(db, db.get(Vendedor, item_id), "/vendedores", "Vendedor+desactivado")
 
 
 # --- Proveedores ---
@@ -678,7 +787,7 @@ def proveedores_list(request: Request, db: Session = Depends(get_db)):
         return bloqueo
     search = request.query_params.get("q", "")
     page = int(request.query_params.get("page", 1))
-    items = _filter_items(db.query(Proveedor).order_by(Proveedor.id).all(), search, ["nombre", "empresa", "telefono"])
+    items = _filter_items(db.query(Proveedor).order_by(Proveedor.id).all(), search, ["nombre", "empresa", "telefono", "rif", "categoria"])
     paged = paginate(items, page, ITEMS_PER_PAGE)
     edit_item = _get_by_id(db, Proveedor, request.query_params.get("edit"))
     view_item = _get_by_id(db, Proveedor, request.query_params.get("ver"))
@@ -704,10 +813,21 @@ def proveedores_crear(
     nombre: str = Form(...),
     telefono: str = Form(...),
     empresa: str = Form(...),
+    rif: str = Form(""),
+    categoria: str = Form(""),
     estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
-    db.add(Proveedor(nombre=nombre.strip(), telefono=telefono.strip(), empresa=empresa.strip(), estado=estado))
+    db.add(
+        Proveedor(
+            nombre=nombre.strip(),
+            telefono=telefono.strip(),
+            empresa=empresa.strip(),
+            rif=rif.strip(),
+            categoria=categoria.strip(),
+            estado=estado,
+        )
+    )
     db.commit()
     return _redirect("/proveedores", msg="Proveedor+creado")
 
@@ -718,6 +838,8 @@ def proveedores_actualizar(
     nombre: str = Form(...),
     telefono: str = Form(...),
     empresa: str = Form(...),
+    rif: str = Form(""),
+    categoria: str = Form(""),
     estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
@@ -727,6 +849,8 @@ def proveedores_actualizar(
     item.nombre = nombre.strip()
     item.telefono = telefono.strip()
     item.empresa = empresa.strip()
+    item.rif = rif.strip()
+    item.categoria = categoria.strip()
     item.estado = estado
     db.commit()
     return _redirect("/proveedores", msg="Proveedor+actualizado")
@@ -734,13 +858,7 @@ def proveedores_actualizar(
 
 @protected_router.post("/proveedores/{item_id}/eliminar", dependencies=[Depends(requiere_modulo("proveedores")), Depends(requiere_eliminar())])
 def proveedores_eliminar(item_id: int, db: Session = Depends(get_db)):
-    return _eliminar_registro(
-        db,
-        db.get(Proveedor, item_id),
-        "/proveedores",
-        "Proveedor+eliminado",
-        "No+se+puede+eliminar+el+proveedor",
-    )
+    return _desactivar_registro(db, db.get(Proveedor, item_id), "/proveedores", "Proveedor+desactivado")
 
 
 # --- Clientes ---
@@ -753,10 +871,21 @@ def clientes_list(request: Request, db: Session = Depends(get_db)):
         return bloqueo
     search = request.query_params.get("q", "")
     page = int(request.query_params.get("page", 1))
-    items = _filter_items(db.query(Cliente).order_by(Cliente.id).all(), search, ["nombre", "correo", "telefono"])
+    items = (
+        db.query(Cliente)
+        .options(joinedload(Cliente.vendedor_rel))
+        .order_by(Cliente.id)
+        .all()
+    )
+    items = _filter_items(items, search, ["nombre", "correo", "telefono", "rif", "zona"])
     paged = paginate(items, page, ITEMS_PER_PAGE)
     edit_item = _get_by_id(db, Cliente, request.query_params.get("edit"))
     view_item = _get_by_id(db, Cliente, request.query_params.get("ver"))
+    if edit_item:
+        edit_item = db.query(Cliente).options(joinedload(Cliente.vendedor_rel)).filter(Cliente.id == edit_item.id).first()
+    if view_item:
+        view_item = db.query(Cliente).options(joinedload(Cliente.vendedor_rel)).filter(Cliente.id == view_item.id).first()
+    vendedores = db.query(Vendedor).filter(Vendedor.estado == "ACTIVO").order_by(Vendedor.nombre).all()
     return request.app.state.templates.TemplateResponse(
         "clientes.html",
         _ctx(
@@ -767,6 +896,7 @@ def clientes_list(request: Request, db: Session = Depends(get_db)):
             list_qs=_list_qs(page, search),
             edit_item=edit_item,
             view_item=view_item,
+            vendedores=vendedores,
             show_create=request.query_params.get("nuevo") == "1",
             msg=request.query_params.get("msg", ""),
             error=request.query_params.get("error", ""),
@@ -780,9 +910,25 @@ def clientes_crear(
     telefono: str = Form(...),
     correo: str = Form(...),
     direccion: str = Form(...),
+    rif: str = Form(""),
+    zona: str = Form(""),
+    vendedor_id: str = Form(""),
+    estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
-    db.add(Cliente(nombre=nombre.strip(), telefono=telefono.strip(), correo=correo.strip(), direccion=direccion.strip()))
+    vid = int(vendedor_id) if str(vendedor_id).strip().isdigit() else None
+    db.add(
+        Cliente(
+            nombre=nombre.strip(),
+            telefono=telefono.strip(),
+            correo=correo.strip(),
+            direccion=direccion.strip(),
+            rif=rif.strip(),
+            zona=zona.strip(),
+            vendedor_id=vid,
+            estado=estado,
+        )
+    )
     db.commit()
     return _redirect("/clientes", msg="Cliente+creado")
 
@@ -794,6 +940,10 @@ def clientes_actualizar(
     telefono: str = Form(...),
     correo: str = Form(...),
     direccion: str = Form(...),
+    rif: str = Form(""),
+    zona: str = Form(""),
+    vendedor_id: str = Form(""),
+    estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
     item = db.get(Cliente, item_id)
@@ -803,25 +953,17 @@ def clientes_actualizar(
     item.telefono = telefono.strip()
     item.correo = correo.strip()
     item.direccion = direccion.strip()
+    item.rif = rif.strip()
+    item.zona = zona.strip()
+    item.vendedor_id = int(vendedor_id) if str(vendedor_id).strip().isdigit() else None
+    item.estado = estado
     db.commit()
     return _redirect("/clientes", msg="Cliente+actualizado")
 
 
 @protected_router.post("/clientes/{item_id}/eliminar", dependencies=[Depends(requiere_modulo("clientes")), Depends(requiere_eliminar())])
 def clientes_eliminar(item_id: int, db: Session = Depends(get_db)):
-    item = db.get(Cliente, item_id)
-    if item and _tiene_despachos_cliente(db, item_id):
-        return _redirect(
-            "/clientes",
-            error="No+se+puede+eliminar:+el+cliente+tiene+despachos+asociados",
-        )
-    return _eliminar_registro(
-        db,
-        item,
-        "/clientes",
-        "Cliente+eliminado",
-        "No+se+puede+eliminar+el+cliente",
-    )
+    return _desactivar_registro(db, db.get(Cliente, item_id), "/clientes", "Cliente+desactivado")
 
 
 # --- Usuarios (solo administrador del sistema) ---
@@ -849,6 +991,7 @@ def usuarios_list(request: Request, db: Session = Depends(get_db)):
             edit_item=edit_item,
             view_item=view_item,
             show_create=request.query_params.get("nuevo") == "1",
+            password_requisitos=requisitos_texto(),
             msg=request.query_params.get("msg", ""),
             error=request.query_params.get("error", ""),
         ),
@@ -869,6 +1012,9 @@ def usuarios_crear(
     correo_limpio = password_reset_service.normalizar_correo(correo)
     if not usuario_limpio or not clave.strip():
         return _redirect("/usuarios", error="Usuario+y+contraseña+son+obligatorios")
+    error_politica = validar_contrasena(clave)
+    if error_politica:
+        return _redirect("/usuarios", error=error_politica.replace(" ", "+"))
     if not password_reset_service.correo_valido(correo_limpio):
         return _redirect("/usuarios", error="El+correo+electrónico+no+es+válido")
     if not _correo_disponible(db, correo_limpio):
@@ -926,6 +1072,9 @@ def usuarios_actualizar(
     item.nombre = nombre.strip()
     item.correo = correo_limpio
     if clave.strip():
+        error_politica = validar_contrasena(clave)
+        if error_politica:
+            return _redirect("/usuarios", error=error_politica.replace(" ", "+"))
         item.clave = clave
     item.role = role
     item.activo = activo == "ACTIVO"
@@ -940,7 +1089,7 @@ def usuarios_actualizar(
 def usuarios_eliminar(item_id: str, request: Request, db: Session = Depends(get_db)):
     current = require_user(request)
     if current and current.get("id") == item_id:
-        return _redirect("/usuarios", error="No+puedes+eliminar+tu+propia+cuenta")
+        return _redirect("/usuarios", error="No+puedes+desactivar+tu+propia+cuenta")
     item = db.get(Usuario, item_id)
     if not item:
         return _redirect("/usuarios", error="Usuario+no+encontrado")
@@ -948,9 +1097,7 @@ def usuarios_eliminar(item_id: str, request: Request, db: Session = Depends(get_
         admins = db.query(Usuario).filter(Usuario.role == ADMINISTRADOR_SISTEMA, Usuario.activo == True).count()
         if admins <= 1:
             return _redirect("/usuarios", error="Debe+existir+al+menos+un+administrador+activo")
-    db.delete(item)
-    db.commit()
-    return _redirect("/usuarios", msg="Usuario+eliminado")
+    return _desactivar_registro(db, item, "/usuarios", "Usuario+desactivado")
 
 
 # --- Despachos ---
@@ -962,6 +1109,9 @@ def despachos_list(request: Request, db: Session = Depends(get_db)):
     if bloqueo:
         return bloqueo
     search = request.query_params.get("q", "")
+    cliente_filtro = request.query_params.get("cliente_id", "")
+    desde = request.query_params.get("desde", "")
+    hasta = request.query_params.get("hasta", "")
     page = int(request.query_params.get("page", 1))
     items = (
         db.query(Movimiento)
@@ -970,9 +1120,21 @@ def despachos_list(request: Request, db: Session = Depends(get_db)):
             joinedload(Movimiento.vendedor_rel),
             joinedload(Movimiento.cliente_rel),
         )
+        .filter(Movimiento.estado == "ACTIVO")
         .order_by(Movimiento.id.desc())
         .all()
     )
+    desde_dt = _parse_fecha_filtro(desde)
+    hasta_dt = _parse_fecha_filtro(hasta)
+    if cliente_filtro.strip().isdigit():
+        cid = int(cliente_filtro)
+        items = [m for m in items if m.cliente_id == cid]
+    if desde_dt or hasta_dt:
+        items = [
+            m
+            for m in items
+            if _fecha_en_rango(m.fecha_pedido or m.fecha_salida, desde_dt, hasta_dt)
+        ]
     if search:
         s = search.lower()
         items = [
@@ -987,18 +1149,29 @@ def despachos_list(request: Request, db: Session = Depends(get_db)):
             or s in (m.vendedor_rel.nombre if m.vendedor_rel else "").lower()
             or s in (m.cliente_rel.nombre if m.cliente_rel else "").lower()
             or s in (m.estado_despacho or "").lower()
+            or s in (m.numero_factura or "").lower()
         ]
+    filter_qs = ""
+    if search:
+        filter_qs += f"&q={search}"
+    if cliente_filtro:
+        filter_qs += f"&cliente_id={cliente_filtro}"
+    if desde:
+        filter_qs += f"&desde={desde}"
+    if hasta:
+        filter_qs += f"&hasta={hasta}"
     paged = paginate(items, page, ITEMS_PER_PAGE)
     edit_item = _get_movimiento(db, request.query_params.get("edit"))
     view_item = _get_movimiento(db, request.query_params.get("ver"))
     productos = (
         db.query(Producto)
         .options(joinedload(Producto.proveedor_rel))
-        .order_by(Producto.producto)
+        .filter(Producto.estado == "ACTIVO", Producto.cantidad > 0)
+        .order_by(Producto.fecha_produccion.asc(), Producto.producto.asc())
         .all()
     )
     vendedores = db.query(Vendedor).filter(Vendedor.estado == "ACTIVO").order_by(Vendedor.nombre).all()
-    clientes = db.query(Cliente).order_by(Cliente.nombre).all()
+    clientes = db.query(Cliente).filter(Cliente.estado == "ACTIVO").order_by(Cliente.nombre).all()
     return request.app.state.templates.TemplateResponse(
         "despachos.html",
         _ctx(
@@ -1006,7 +1179,10 @@ def despachos_list(request: Request, db: Session = Depends(get_db)):
             active="despachos",
             paged=paged,
             search=search,
-            list_qs=_list_qs(page, search),
+            cliente_filtro=cliente_filtro,
+            desde=desde,
+            hasta=hasta,
+            list_qs=_list_qs(page, search) + (f"&cliente_id={cliente_filtro}" if cliente_filtro else "") + (f"&desde={desde}" if desde else "") + (f"&hasta={hasta}" if hasta else ""),
             edit_item=edit_item,
             view_item=view_item,
             show_create=request.query_params.get("nuevo") == "1",
@@ -1035,11 +1211,28 @@ def despachos_crear(
     cliente_id: int = Form(...),
     cantidad: int = Form(...),
     estado_despacho: str = Form("POR ENTREGAR"),
+    fecha_pedido: str = Form(""),
+    fecha_entrega: str = Form(""),
+    numero_factura: str = Form(""),
     db: Session = Depends(get_db),
 ):
     try:
-        movimientos_service.crear_movimiento(db, producto_id, vendedor_id, cliente_id, cantidad, estado_despacho)
-        return _redirect("/despachos", msg="Despacho+registrado")
+        resultado = movimientos_service.crear_movimiento(
+            db,
+            producto_id,
+            vendedor_id,
+            cliente_id,
+            cantidad,
+            estado_despacho,
+            fecha_pedido=fecha_pedido,
+            fecha_entrega=fecha_entrega,
+            numero_factura=numero_factura,
+            usar_fifo=True,
+        )
+        msg = "Despacho+registrado+(FIFO/PEPS)"
+        if isinstance(resultado, list) and len(resultado) > 1:
+            msg = f"Despacho+registrado+en+{len(resultado)}+lotes+(FIFO/PEPS)"
+        return _redirect("/despachos", msg=msg)
     except StockInsuficienteError as e:
         return _redirect("/despachos", error=str(e).replace(" ", "+"))
 
@@ -1052,10 +1245,24 @@ def despachos_actualizar(
     cliente_id: int = Form(...),
     cantidad: int = Form(...),
     estado_despacho: str = Form("POR ENTREGAR"),
+    fecha_pedido: str = Form(""),
+    fecha_entrega: str = Form(""),
+    numero_factura: str = Form(""),
     db: Session = Depends(get_db),
 ):
     try:
-        movimientos_service.actualizar_movimiento(db, item_id, producto_id, vendedor_id, cliente_id, cantidad, estado_despacho)
+        movimientos_service.actualizar_movimiento(
+            db,
+            item_id,
+            producto_id,
+            vendedor_id,
+            cliente_id,
+            cantidad,
+            estado_despacho,
+            fecha_pedido=fecha_pedido,
+            fecha_entrega=fecha_entrega,
+            numero_factura=numero_factura,
+        )
         return _redirect("/despachos", msg="Despacho+actualizado")
     except (StockInsuficienteError, ValueError) as e:
         return _redirect("/despachos", error=str(e).replace(" ", "+"))
@@ -1064,7 +1271,7 @@ def despachos_actualizar(
 @protected_router.post("/despachos/{item_id}/eliminar", dependencies=[Depends(requiere_modulo("despachos")), Depends(requiere_eliminar())])
 def despachos_eliminar(item_id: int, db: Session = Depends(get_db)):
     try:
-        movimientos_service.eliminar_movimiento(db, item_id)
-        return _redirect("/despachos", msg="Despacho+eliminado")
+        movimientos_service.anular_movimiento(db, item_id)
+        return _redirect("/despachos", msg="Despacho+anulado")
     except ValueError as e:
         return _redirect("/despachos", error=str(e).replace(" ", "+"))

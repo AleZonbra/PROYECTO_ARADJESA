@@ -16,16 +16,16 @@
   <div class="panel">
     <div class="tableWrapper">
       <table class="table">
-        <thead><tr><th>Nombre</th><th>Empleado</th><th>Trabajos</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>Empleado</th><th>Área de desempeño</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>
           {% for item in paged.records %}
           <tr>
             <td>{{ item.nombre }}</td>
             <td>{{ item.num_empleado }}</td>
-            <td>{{ item.trabajos_realizados }}</td>
+            <td>{{ item.area_desempeno or item.trabajos_realizados or '—' }}</td>
             <td><span class="badge {% if item.estado == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/vendedores', item.id, list_qs, '¿Eliminar vendedor?', puede_editar, puede_eliminar) }}
+              {{ actions.render('/vendedores', item.id, list_qs, '¿Desactivar vendedor?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
@@ -43,7 +43,8 @@
   <form method="post" action="/vendedores/crear" class="formGrid">
     <label>Nombre <input name="nombre" required></label>
     <label>Nº empleado <input name="num_empleado" required></label>
-    <label>Trabajos realizados <input name="trabajos_realizados"></label>
+    <label>Área de desempeño <input name="area_desempeno"></label>
+    <label>Meta mínima <input name="meta_minima" type="number" min="0" value="0"></label>
     <label>Estado <select name="estado"><option>ACTIVO</option><option>INACTIVO</option></select></label>
     <div class="modalActions"><a href="/vendedores" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
   </form>
@@ -56,7 +57,8 @@
     <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
     <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
     <div class="detailRow"><span class="detailLabel">Nº empleado</span><span class="detailValue">{{ view_item.num_empleado }}</span></div>
-    <div class="detailRow"><span class="detailLabel">Trabajos realizados</span><span class="detailValue">{{ view_item.trabajos_realizados or '-' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Área de desempeño</span><span class="detailValue">{{ view_item.area_desempeno or view_item.trabajos_realizados or '—' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Meta mínima</span><span class="detailValue">{{ view_item.meta_minima if view_item.meta_minima is not none else '—' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado }}</span></div>
   </div>
   <div class="modalActions">
@@ -71,7 +73,8 @@
   <form method="post" action="/vendedores/{{ edit_item.id }}/actualizar" class="formGrid">
     <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
     <label>Nº empleado <input name="num_empleado" value="{{ edit_item.num_empleado }}" required></label>
-    <label>Trabajos realizados <input name="trabajos_realizados" value="{{ edit_item.trabajos_realizados }}"></label>
+    <label>Área de desempeño <input name="area_desempeno" value="{{ edit_item.area_desempeno or edit_item.trabajos_realizados or '' }}"></label>
+    <label>Meta mínima <input name="meta_minima" type="number" min="0" value="{{ edit_item.meta_minima if edit_item.meta_minima is not none else 0 }}"></label>
     <label>Estado <select name="estado"><option {% if edit_item.estado=='ACTIVO' %}selected{% endif %}>ACTIVO</option><option {% if edit_item.estado=='INACTIVO' %}selected{% endif %}>INACTIVO</option></select></label>
     <div class="modalActions"><a href="/vendedores{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
   </form>

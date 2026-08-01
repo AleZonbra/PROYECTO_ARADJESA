@@ -25,7 +25,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Producto</th><th>Lote</th><th>Proveedor (entrada)</th><th>Cantidad</th><th>Producción</th><th>Expiración</th><th>Acciones</th>
+            <th>Producto</th><th>Lote</th><th>Proveedor (entrada)</th><th>Cantidad</th><th>Stock mín.</th><th>Producción</th><th>Expiración</th><th>Estado</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -35,14 +35,19 @@
             <td>{{ item.serial_lote }}</td>
             <td>{{ item.proveedor_rel.nombre if item.proveedor_rel else '—' }}</td>
             <td>{{ item.cantidad }}</td>
+            <td>{{ item.stock_minimo if item.stock_minimo is not none else '—' }}</td>
             <td>{{ item.fecha_produccion }}</td>
             <td>{{ item.fecha_expiracion }}</td>
+            <td><span class="badge {% if item.estado == 'ACTIVO' or not item.estado %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado or 'ACTIVO' }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/productos', item.id, list_qs, '¿Eliminar producto?', puede_editar, puede_eliminar) }}
+              {% if puede_crear %}
+              <a href="/productos?lote={{ item.id }}{{ list_qs }}">+ Lote</a>
+              {% endif %}
+              {{ actions.render('/productos', item.id, list_qs, '¿Desactivar producto?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="7" class="emptyRow">No hay productos</td></tr>
+          <tr><td colspan="9" class="emptyRow">No hay productos</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -67,6 +72,10 @@
         </select>
       </label>
       <label>Cantidad <input name="cantidad" type="number" min="0" value="0" required></label>
+      <label>Stock mínimo
+        <input name="stock_minimo" type="number" min="0" value="0">
+        <small>Si dejas 0 se calcula por rotación</small>
+      </label>
       <label>Fecha producción <input name="fecha_produccion" placeholder="dd/mm/aaaa"></label>
       <label>Fecha expiración <input name="fecha_expiracion" placeholder="dd/mm/aaaa"></label>
       <div class="modalActions">
@@ -85,6 +94,38 @@
 </div>
 {% endif %}
 
+{% if lote_item %}
+<div class="modalOverlay">
+  <div class="modal">
+    <h2>Agregar lote</h2>
+    <form method="post" action="/productos/agregar-lote" class="formGrid">
+      <label>Producto
+        <input name="producto" value="{{ lote_item.producto }}" readonly>
+      </label>
+      <label>Lote <input name="serial_lote" required></label>
+      <label>Proveedor (entrada)
+        <select name="proveedor_id" required>
+          {% for proveedor in proveedores %}
+          <option value="{{ proveedor.id }}" {% if lote_item.proveedor_id == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Cantidad <input name="cantidad" type="number" min="0" value="0" required></label>
+      <label>Fecha producción <input name="fecha_produccion" placeholder="dd/mm/aaaa"></label>
+      <label>Fecha expiración <input name="fecha_expiracion" placeholder="dd/mm/aaaa"></label>
+      <label>Stock mínimo
+        <input name="stock_minimo" type="number" min="0" value="{{ lote_item.stock_minimo if lote_item.stock_minimo is not none else 0 }}">
+        <small>Si dejas 0 se calcula por rotación</small>
+      </label>
+      <div class="modalActions">
+        <a href="/productos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a>
+        <button type="submit" class="buttonPrimary">Agregar lote</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 {% if view_item %}
 <div class="modalOverlay">
   <div class="modal">
@@ -96,8 +137,10 @@
       <div class="detailRow"><span class="detailLabel">Proveedor (entrada)</span><span class="detailValue">{{ view_item.proveedor_rel.nombre if view_item.proveedor_rel else '—' }}</span></div>
       <div class="detailRow"><span class="detailLabel">Empresa proveedora</span><span class="detailValue">{{ view_item.proveedor_rel.empresa if view_item.proveedor_rel else '—' }}</span></div>
       <div class="detailRow"><span class="detailLabel">Cantidad</span><span class="detailValue">{{ view_item.cantidad }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Stock mínimo</span><span class="detailValue">{{ view_item.stock_minimo if view_item.stock_minimo is not none else '—' }}</span></div>
       <div class="detailRow"><span class="detailLabel">Fecha producción</span><span class="detailValue">{{ view_item.fecha_produccion or '-' }}</span></div>
       <div class="detailRow"><span class="detailLabel">Fecha expiración</span><span class="detailValue">{{ view_item.fecha_expiracion or '-' }}</span></div>
+      <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado or 'ACTIVO' }}</span></div>
     </div>
     <div class="modalActions">
       <a href="/productos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
@@ -124,8 +167,18 @@
         </select>
       </label>
       <label>Cantidad <input name="cantidad" type="number" min="0" value="{{ edit_item.cantidad }}" required></label>
+      <label>Stock mínimo
+        <input name="stock_minimo" type="number" min="0" value="{{ edit_item.stock_minimo if edit_item.stock_minimo is not none else 0 }}">
+        <small>Si dejas 0 se calcula por rotación</small>
+      </label>
       <label>Fecha producción <input name="fecha_produccion" value="{{ edit_item.fecha_produccion }}"></label>
       <label>Fecha expiración <input name="fecha_expiracion" value="{{ edit_item.fecha_expiracion }}"></label>
+      <label>Estado
+        <select name="estado">
+          <option {% if edit_item.estado == 'ACTIVO' or not edit_item.estado %}selected{% endif %}>ACTIVO</option>
+          <option {% if edit_item.estado == 'INACTIVO' %}selected{% endif %}>INACTIVO</option>
+        </select>
+      </label>
       <div class="modalActions">
         <a href="/productos{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a>
         <button type="submit" class="buttonPrimary">Actualizar</button>

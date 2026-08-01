@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app import config
 from app.models import PasswordResetToken, Usuario
 from app.services import email_service
+from app.services.password_policy import validar_contrasena
 
 logger = logging.getLogger("sisarad.password_reset")
 
@@ -147,8 +148,9 @@ def validar_codigo_recuperacion(
 
 
 def restablecer_contrasena(db: Session, token_id: int, nueva_clave: str) -> tuple[bool, str]:
-    if not nueva_clave.strip():
-        return False, "La+nueva+contraseña+es+obligatoria"
+    error_politica = validar_contrasena(nueva_clave)
+    if error_politica:
+        return False, error_politica.replace(" ", "+")
 
     registro = db.get(PasswordResetToken, token_id)
     if not registro or registro.used:

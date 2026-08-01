@@ -18,20 +18,23 @@
   <div class="panel">
     <div class="tableWrapper">
       <table class="table">
-        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Dirección</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>RIF</th><th>Teléfono</th><th>Correo</th><th>Dirección</th><th>Zona</th><th>Vendedor</th><th>Acciones</th></tr></thead>
         <tbody>
           {% for item in paged.records %}
           <tr>
             <td>{{ item.nombre }}</td>
+            <td>{{ item.rif or '—' }}</td>
             <td>{{ item.telefono }}</td>
             <td>{{ item.correo }}</td>
             <td>{{ item.direccion }}</td>
+            <td>{{ item.zona or '—' }}</td>
+            <td>{{ item.vendedor_rel.nombre if item.vendedor_rel else '—' }}</td>
             <td class="actionCell">
-              {{ actions.render('/clientes', item.id, list_qs, '¿Eliminar cliente?', puede_editar, puede_eliminar) }}
+              {{ actions.render('/clientes', item.id, list_qs, '¿Desactivar cliente?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="5" class="emptyRow">No hay clientes</td></tr>
+          <tr><td colspan="8" class="emptyRow">No hay clientes</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -44,9 +47,25 @@
   <h2>Nuevo cliente</h2>
   <form method="post" action="/clientes/crear" class="formGrid">
     <label>Nombre <input name="nombre" required></label>
+    <label>RIF <input name="rif"></label>
     <label>Teléfono <input name="telefono" required></label>
     <label>Correo <input name="correo" type="email" required></label>
     <label>Dirección <input name="direccion" required></label>
+    <label>Zona <input name="zona"></label>
+    <label>Vendedor
+      <select name="vendedor_id">
+        <option value="">— Sin asignar —</option>
+        {% for v in vendedores %}
+        <option value="{{ v.id }}">{{ v.nombre }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Estado
+      <select name="estado">
+        <option>ACTIVO</option>
+        <option>INACTIVO</option>
+      </select>
+    </label>
     <div class="modalActions"><a href="/clientes" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Guardar</button></div>
   </form>
 </div></div>
@@ -57,9 +76,13 @@
   <div class="detailGrid">
     <div class="detailRow"><span class="detailLabel">ID</span><span class="detailValue">{{ view_item.id }}</span></div>
     <div class="detailRow"><span class="detailLabel">Nombre</span><span class="detailValue">{{ view_item.nombre }}</span></div>
+    <div class="detailRow"><span class="detailLabel">RIF</span><span class="detailValue">{{ view_item.rif or '—' }}</span></div>
     <div class="detailRow"><span class="detailLabel">Teléfono</span><span class="detailValue">{{ view_item.telefono }}</span></div>
     <div class="detailRow"><span class="detailLabel">Correo</span><span class="detailValue">{{ view_item.correo }}</span></div>
     <div class="detailRow"><span class="detailLabel">Dirección</span><span class="detailValue">{{ view_item.direccion }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Zona</span><span class="detailValue">{{ view_item.zona or '—' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Vendedor</span><span class="detailValue">{{ view_item.vendedor_rel.nombre if view_item.vendedor_rel else '—' }}</span></div>
+    <div class="detailRow"><span class="detailLabel">Estado</span><span class="detailValue">{{ view_item.estado or '—' }}</span></div>
   </div>
   <div class="modalActions">
     <a href="/clientes{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cerrar</a>
@@ -74,9 +97,25 @@
   <h2>Editar cliente</h2>
   <form method="post" action="/clientes/{{ edit_item.id }}/actualizar" class="formGrid">
     <label>Nombre <input name="nombre" value="{{ edit_item.nombre }}" required></label>
+    <label>RIF <input name="rif" value="{{ edit_item.rif or '' }}"></label>
     <label>Teléfono <input name="telefono" value="{{ edit_item.telefono }}" required></label>
     <label>Correo <input name="correo" type="email" value="{{ edit_item.correo }}" required></label>
     <label>Dirección <input name="direccion" value="{{ edit_item.direccion }}" required></label>
+    <label>Zona <input name="zona" value="{{ edit_item.zona or '' }}"></label>
+    <label>Vendedor
+      <select name="vendedor_id">
+        <option value="">— Sin asignar —</option>
+        {% for v in vendedores %}
+        <option value="{{ v.id }}" {% if edit_item.vendedor_id == v.id %}selected{% endif %}>{{ v.nombre }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Estado
+      <select name="estado">
+        <option {% if edit_item.estado == 'ACTIVO' or not edit_item.estado %}selected{% endif %}>ACTIVO</option>
+        <option {% if edit_item.estado == 'INACTIVO' %}selected{% endif %}>INACTIVO</option>
+      </select>
+    </label>
     <div class="modalActions"><a href="/clientes{% if list_qs %}?{{ list_qs[1:] }}{% endif %}" class="buttonSecondary">Cancelar</a><button class="buttonPrimary">Actualizar</button></div>
   </form>
 </div></div>

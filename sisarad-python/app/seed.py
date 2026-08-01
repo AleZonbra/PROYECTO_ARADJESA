@@ -14,7 +14,7 @@ def seed_usuarios(db: Session):
             "usuario": "admin",
             "nombre": "Administrador del Sistema",
             "correo": "admin@sisarad.local",
-            "clave": "admin",
+            "clave": "Admin123!",
             "role": "administrador_sistema",
         },
         {
@@ -22,7 +22,7 @@ def seed_usuarios(db: Session):
             "usuario": "encargado",
             "nombre": "Encargado de Negocio",
             "correo": "encargado@sisarad.local",
-            "clave": "encargado",
+            "clave": "Encargado123!",
             "role": "encargado_negocio",
         },
     ]
@@ -32,7 +32,9 @@ def seed_usuarios(db: Session):
             existente.usuario = datos["usuario"]
             existente.nombre = datos["nombre"]
             existente.correo = datos["correo"]
-            existente.clave = datos["clave"]
+            # Solo actualizar clave demo si sigue siendo la antigua o vacía
+            if existente.clave in ("admin", "encargado", datos["clave"]):
+                existente.clave = datos["clave"]
             existente.role = datos["role"]
             existente.activo = True
         else:
@@ -100,7 +102,16 @@ def seed_vendedores(db: Session):
         ("VALENTINA LOPEZ", "EMP-012", "DESPACHOS ESPECIALES"),
     ]
     for d in datos:
-        db.add(Vendedor(nombre=d[0], num_empleado=d[1], trabajos_realizados=d[2], estado="ACTIVO"))
+        db.add(
+            Vendedor(
+                nombre=d[0],
+                num_empleado=d[1],
+                trabajos_realizados=d[2],
+                area_desempeno=d[2],
+                meta_minima=50,
+                estado="ACTIVO",
+            )
+        )
     db.commit()
 
 
@@ -108,21 +119,30 @@ def seed_proveedores(db: Session):
     if db.query(Proveedor).count() > 0:
         return
     datos = [
-        ("DISTRIBUIDORA ALIMENTOS C.A.", "0212-5550101", "ALIMENTOS DEL VALLE"),
-        ("COMERCIAL LA GRANJA", "0212-5550102", "LA GRANJA"),
-        ("IMPORTADORA NACIONAL", "0212-5550103", "IMPORTNAC"),
-        ("PROVEEDORA DEL CENTRO", "0212-5550104", "PROCEN"),
-        ("SUMINISTROS INDUSTRIALES", "0212-5550105", "SUMIND"),
-        ("ALMACÉN EL PROGRESO", "0212-5550106", "EL PROGRESO"),
-        ("DISTRIBUCIONES MIRANDA", "0212-5550107", "MIRANDA DIST"),
-        ("COMERCIALIZADORA UNIDA", "0212-5550108", "COMUNIDA"),
-        ("GRUPO SUMINISTRO TOTAL", "0212-5550109", "GST"),
-        ("LOGÍSTICA Y ABASTO", "0212-5550110", "LOGABASTO"),
-        ("PROVEEDORA METRÓNICA", "0212-5550111", "METRONICA"),
-        ("DISTRIBUIDORA ARADJESA", "0212-5550112", "ARADJESA"),
+        ("DISTRIBUIDORA ALIMENTOS C.A.", "0212-5550101", "ALIMENTOS DEL VALLE", "J-40000001-1", "Alimentos"),
+        ("COMERCIAL LA GRANJA", "0212-5550102", "LA GRANJA", "J-40000002-2", "Alimentos"),
+        ("IMPORTADORA NACIONAL", "0212-5550103", "IMPORTNAC", "J-40000003-3", "Importación"),
+        ("PROVEEDORA DEL CENTRO", "0212-5550104", "PROCEN", "J-40000004-4", "Abarrotes"),
+        ("SUMINISTROS INDUSTRIALES", "0212-5550105", "SUMIND", "J-40000005-5", "Industrial"),
+        ("ALMACÉN EL PROGRESO", "0212-5550106", "EL PROGRESO", "J-40000006-6", "Abarrotes"),
+        ("DISTRIBUCIONES MIRANDA", "0212-5550107", "MIRANDA DIST", "J-40000007-7", "Distribución"),
+        ("COMERCIALIZADORA UNIDA", "0212-5550108", "COMUNIDA", "J-40000008-8", "Comercial"),
+        ("GRUPO SUMINISTRO TOTAL", "0212-5550109", "GST", "J-40000009-9", "Suministros"),
+        ("LOGÍSTICA Y ABASTO", "0212-5550110", "LOGABASTO", "J-40000010-0", "Logística"),
+        ("PROVEEDORA METRÓNICA", "0212-5550111", "METRONICA", "J-40000011-1", "Industrial"),
+        ("DISTRIBUIDORA ARADJESA", "0212-5550112", "ARADJESA", "J-409055221", "Distribución"),
     ]
     for d in datos:
-        db.add(Proveedor(nombre=d[0], telefono=d[1], empresa=d[2], estado="ACTIVO"))
+        db.add(
+            Proveedor(
+                nombre=d[0],
+                telefono=d[1],
+                empresa=d[2],
+                rif=d[3],
+                categoria=d[4],
+                estado="ACTIVO",
+            )
+        )
     db.commit()
 
 
@@ -146,8 +166,21 @@ def seed_clientes(db: Session):
         ("COMERCIAL LA FUENTE", "0414-1000014", "lafuente@mail.com", "AV. LA FUENTE 88"),
         ("ABASTO EL TRIGAL", "0414-1000015", "trigal@mail.com", "URB. EL TRIGAL"),
     ]
-    for d in datos:
-        db.add(Cliente(nombre=d[0], telefono=d[1], correo=d[2], direccion=d[3]))
+    for i, d in enumerate(datos):
+        vendedor_id = (i % 12) + 1
+        zona = ("NORTE", "CENTRO", "SUR", "ESTE", "OESTE")[i % 5]
+        db.add(
+            Cliente(
+                nombre=d[0],
+                telefono=d[1],
+                correo=d[2],
+                direccion=d[3],
+                rif=f"J-41{100000 + i}",
+                zona=zona,
+                vendedor_id=vendedor_id,
+                estado="ACTIVO",
+            )
+        )
     db.commit()
 
 
@@ -179,6 +212,29 @@ def seed_movimientos(db: Session):
         )
 
 
+def sincronizar_campos_existentes(db: Session):
+    """Completa columnas nuevas en datos ya existentes sin romper registros."""
+    for vendedor in db.query(Vendedor).all():
+        if not (vendedor.area_desempeno or "").strip() and (vendedor.trabajos_realizados or "").strip():
+            vendedor.area_desempeno = vendedor.trabajos_realizados
+        if vendedor.meta_minima is None:
+            vendedor.meta_minima = 0
+    for cliente in db.query(Cliente).all():
+        if not (cliente.estado or "").strip():
+            cliente.estado = "ACTIVO"
+    for producto in db.query(Producto).all():
+        if not (producto.estado or "").strip():
+            producto.estado = "ACTIVO"
+        if producto.stock_minimo is None:
+            producto.stock_minimo = 20
+    for movimiento in db.query(Movimiento).all():
+        if not (movimiento.estado or "").strip():
+            movimiento.estado = "ACTIVO"
+        if not (movimiento.fecha_pedido or "").strip():
+            movimiento.fecha_pedido = movimiento.fecha_salida
+    db.commit()
+
+
 def inicializar_datos(db: Session):
     seed_usuarios(db)
     seed_vendedores(db)
@@ -186,3 +242,4 @@ def inicializar_datos(db: Session):
     seed_productos(db)
     seed_clientes(db)
     seed_movimientos(db)
+    sincronizar_campos_existentes(db)

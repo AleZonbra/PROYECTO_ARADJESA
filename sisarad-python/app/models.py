@@ -40,6 +40,8 @@ class Producto(Base):
     fecha_produccion = Column(String)
     fecha_expiracion = Column(String)
     proveedor_id = Column(Integer, ForeignKey("proveedores.id"))
+    stock_minimo = Column(Integer, default=20)
+    estado = Column(String, default="ACTIVO")
 
     proveedor_rel = relationship("Proveedor", back_populates="productos")
     movimientos = relationship("Movimiento", back_populates="producto_rel")
@@ -51,10 +53,13 @@ class Vendedor(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String, nullable=False)
     num_empleado = Column(String, nullable=False)
-    trabajos_realizados = Column(String)
+    trabajos_realizados = Column(String)  # legado; preferir area_desempeno
+    area_desempeno = Column(String)
+    meta_minima = Column(Integer, default=0)
     estado = Column(String, default="ACTIVO")
 
     movimientos = relationship("Movimiento", back_populates="vendedor_rel")
+    clientes = relationship("Cliente", back_populates="vendedor_rel")
 
 
 class Proveedor(Base):
@@ -64,6 +69,8 @@ class Proveedor(Base):
     nombre = Column(String, nullable=False)
     telefono = Column(String, nullable=False)
     empresa = Column(String, nullable=False)
+    rif = Column(String)
+    categoria = Column(String)
     estado = Column(String, default="ACTIVO")
 
     productos = relationship("Producto", back_populates="proveedor_rel")
@@ -77,7 +84,12 @@ class Cliente(Base):
     telefono = Column(String, nullable=False)
     correo = Column(String, nullable=False)
     direccion = Column(String, nullable=False)
+    rif = Column(String)
+    zona = Column(String)
+    vendedor_id = Column(Integer, ForeignKey("vendedores.id"))
+    estado = Column(String, default="ACTIVO")
 
+    vendedor_rel = relationship("Vendedor", back_populates="clientes")
     movimientos = relationship("Movimiento", back_populates="cliente_rel")
 
 
@@ -90,7 +102,11 @@ class Movimiento(Base):
     cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=False)
     cantidad = Column(Integer, nullable=False)
     fecha_salida = Column(String, nullable=False)
+    fecha_pedido = Column(String)
+    fecha_entrega = Column(String)
+    numero_factura = Column(String)
     estado_despacho = Column(String, default="POR ENTREGAR")
+    estado = Column(String, default="ACTIVO")
 
     producto_rel = relationship("Producto", back_populates="movimientos")
     vendedor_rel = relationship("Vendedor", back_populates="movimientos")

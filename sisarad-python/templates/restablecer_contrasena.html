@@ -16,6 +16,7 @@
         <p class="recoveryStep">Paso 3 de 3</p>
         <h1 class="loginTitle">Nueva contraseña</h1>
         <p class="loginSubtitle">Usuario: <strong>{{ usuario }}</strong>. Define tu nueva contraseña de acceso.</p>
+        <p class="loginSubtitle">Mínimo 8 caracteres, mayúscula, minúscula, número y especial.</p>
         {% if error %}
         <div class="alert alertError">{{ error | replace('+', ' ') }}</div>
         {% endif %}
@@ -24,10 +25,10 @@
         {% endif %}
         <form method="post" action="/restablecer-contrasena" class="formGrid loginForm">
           <label>Nueva contraseña
-            <input type="password" name="clave" required autocomplete="new-password" minlength="4" placeholder="Nueva contraseña">
+            <input type="password" name="clave" required autocomplete="new-password" minlength="8" placeholder="Nueva contraseña">
           </label>
           <label>Confirmar contraseña
-            <input type="password" name="clave_confirmar" required autocomplete="new-password" minlength="4" placeholder="Repite la contraseña">
+            <input type="password" name="clave_confirmar" required autocomplete="new-password" minlength="8" placeholder="Repite la contraseña">
           </label>
           <button type="submit" class="buttonPrimary loginSubmit">Guardar contraseña</button>
         </form>

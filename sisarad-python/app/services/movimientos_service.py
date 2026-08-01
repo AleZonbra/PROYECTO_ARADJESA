@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models import Movimiento, Producto
 
@@ -9,8 +9,37 @@ class StockInsuficienteError(Exception):
     pass
 
 
-def _fecha_hoy():
+def _fecha_hoy() -> str:
     return datetime.now().strftime("%d/%m/%Y")
+
+
+def _parse_fecha(fecha_str: str | None):
+    if not fecha_str:
+        return datetime.max
+    try:
+        return datetime.strptime(fecha_str.strip(), "%d/%m/%Y")
+    except (TypeError, ValueError):
+        return datetime.max
+
+
+def _producto_activo(producto: Producto | None) -> bool:
+    return bool(producto and (producto.estado or "ACTIVO") == "ACTIVO")
+
+
+def lotes_fifo(db: Session, nombre_producto: str | None = None, producto_id: int | None = None):
+    """Lotes activos ordenados por fecha de producción (PEPS/FIFO)."""
+    query = db.query(Producto).filter(Producto.estado == "ACTIVO", Producto.cantidad > 0)
+    if producto_id:
+        producto = db.get(Producto, producto_id)
+        if not producto:
+            return []
+        query = query.filter(Producto.producto == producto.producto)
+    elif nombre_producto:
+        query = query.filter(Producto.producto == nombre_producto.strip())
+    else:
+        return []
+    lotes = query.all()
+    return sorted(lotes, key=lambda p: (_parse_fecha(p.fecha_produccion), p.id))
 
 
 def crear_movimiento(
@@ -20,23 +49,79 @@ def crear_movimiento(
     cliente_id: int,
     cantidad: int,
     estado_despacho: str = "POR ENTREGAR",
+    fecha_pedido: str = "",
+    fecha_entrega: str = "",
+    numero_factura: str = "",
+    usar_fifo: bool = True,
 ):
-    producto = db.get(Producto, producto_id)
-    if not producto or producto.cantidad < cantidad:
-        raise StockInsuficienteError("Inventario insuficiente para el producto seleccionado")
-    producto.cantidad -= cantidad
-    mov = Movimiento(
-        producto_id=producto_id,
-        vendedor_id=vendedor_id,
-        cliente_id=cliente_id,
-        cantidad=cantidad,
-        fecha_salida=_fecha_hoy(),
-        estado_despacho=estado_despacho or "POR ENTREGAR",
-    )
-    db.add(mov)
+    if cantidad <= 0:
+        raise StockInsuficienteError("La cantidad debe ser mayor a cero")
+
+    producto_base = db.get(Producto, producto_id)
+    if not _producto_activo(producto_base):
+        raise StockInsuficienteError("El producto seleccionado no está activo")
+
+    fecha_pedido_val = (fecha_pedido or "").strip() or _fecha_hoy()
+    fecha_entrega_val = (fecha_entrega or "").strip()
+    factura_val = (numero_factura or "").strip()
+    estado = estado_despacho or "POR ENTREGAR"
+
+    if estado == "ENTREGADO" and not fecha_entrega_val:
+        fecha_entrega_val = _fecha_hoy()
+
+    creados: list[Movimiento] = []
+
+    if usar_fifo:
+        lotes = lotes_fifo(db, producto_id=producto_id)
+        stock_total = sum(l.cantidad for l in lotes)
+        if stock_total < cantidad:
+            raise StockInsuficienteError(
+                f"Inventario insuficiente (disponible {stock_total}, solicitado {cantidad})"
+            )
+        restante = cantidad
+        for lote in lotes:
+            if restante <= 0:
+                break
+            tomar = min(lote.cantidad, restante)
+            lote.cantidad -= tomar
+            mov = Movimiento(
+                producto_id=lote.id,
+                vendedor_id=vendedor_id,
+                cliente_id=cliente_id,
+                cantidad=tomar,
+                fecha_salida=_fecha_hoy(),
+                fecha_pedido=fecha_pedido_val,
+                fecha_entrega=fecha_entrega_val or None,
+                numero_factura=factura_val or None,
+                estado_despacho=estado,
+                estado="ACTIVO",
+            )
+            db.add(mov)
+            creados.append(mov)
+            restante -= tomar
+    else:
+        if producto_base.cantidad < cantidad:
+            raise StockInsuficienteError("Inventario insuficiente para el producto seleccionado")
+        producto_base.cantidad -= cantidad
+        mov = Movimiento(
+            producto_id=producto_id,
+            vendedor_id=vendedor_id,
+            cliente_id=cliente_id,
+            cantidad=cantidad,
+            fecha_salida=_fecha_hoy(),
+            fecha_pedido=fecha_pedido_val,
+            fecha_entrega=fecha_entrega_val or None,
+            numero_factura=factura_val or None,
+            estado_despacho=estado,
+            estado="ACTIVO",
+        )
+        db.add(mov)
+        creados.append(mov)
+
     db.commit()
-    db.refresh(mov)
-    return mov
+    for mov in creados:
+        db.refresh(mov)
+    return creados[0] if len(creados) == 1 else creados
 
 
 def actualizar_movimiento(
@@ -47,34 +132,74 @@ def actualizar_movimiento(
     cliente_id: int,
     cantidad: int,
     estado_despacho: str,
+    fecha_pedido: str = "",
+    fecha_entrega: str = "",
+    numero_factura: str = "",
 ):
     mov = db.get(Movimiento, movimiento_id)
-    if not mov:
+    if not mov or (mov.estado or "ACTIVO") != "ACTIVO":
         raise ValueError("Despacho no encontrado")
+    if cantidad <= 0:
+        raise StockInsuficienteError("La cantidad debe ser mayor a cero")
+
     producto_anterior = db.get(Producto, mov.producto_id)
     if producto_anterior:
         producto_anterior.cantidad += mov.cantidad
+
     producto_nuevo = db.get(Producto, producto_id)
-    if not producto_nuevo or producto_nuevo.cantidad < cantidad:
+    if not _producto_activo(producto_nuevo) or producto_nuevo.cantidad < cantidad:
         db.rollback()
         raise StockInsuficienteError("Inventario insuficiente para actualizar el despacho")
+
+    estado = estado_despacho or "POR ENTREGAR"
+    fecha_entrega_val = (fecha_entrega or "").strip()
+    if estado == "ENTREGADO" and not fecha_entrega_val:
+        fecha_entrega_val = _fecha_hoy()
+
     producto_nuevo.cantidad -= cantidad
     mov.producto_id = producto_id
     mov.vendedor_id = vendedor_id
     mov.cliente_id = cliente_id
     mov.cantidad = cantidad
-    mov.estado_despacho = estado_despacho
+    mov.estado_despacho = estado
+    mov.fecha_pedido = (fecha_pedido or "").strip() or mov.fecha_pedido or mov.fecha_salida
+    mov.fecha_entrega = fecha_entrega_val or None
+    mov.numero_factura = (numero_factura or "").strip() or None
+    db.commit()
+    db.refresh(mov)
+    return mov
+
+
+def anular_movimiento(db: Session, movimiento_id: int):
+    """Borrado lógico de despacho: restaura stock y marca ANULADO."""
+    mov = db.get(Movimiento, movimiento_id)
+    if not mov:
+        raise ValueError("Despacho no encontrado")
+    if (mov.estado or "ACTIVO") != "ACTIVO":
+        raise ValueError("El despacho ya está anulado")
+    producto = db.get(Producto, mov.producto_id)
+    if producto:
+        producto.cantidad += mov.cantidad
+    mov.estado = "INACTIVO"
+    mov.estado_despacho = "ANULADO"
     db.commit()
     db.refresh(mov)
     return mov
 
 
 def eliminar_movimiento(db: Session, movimiento_id: int):
-    mov = db.get(Movimiento, movimiento_id)
-    if not mov:
-        raise ValueError("Despacho no encontrado")
-    producto = db.get(Producto, mov.producto_id)
-    if producto:
-        producto.cantidad += mov.cantidad
-    db.delete(mov)
-    db.commit()
+    """Compatibilidad: anula en lugar de borrar físicamente."""
+    return anular_movimiento(db, movimiento_id)
+
+
+def movimientos_activos(db: Session):
+    return (
+        db.query(Movimiento)
+        .options(
+            joinedload(Movimiento.producto_rel).joinedload(Producto.proveedor_rel),
+            joinedload(Movimiento.vendedor_rel),
+            joinedload(Movimiento.cliente_rel),
+        )
+        .filter(Movimiento.estado == "ACTIVO")
+        .order_by(Movimiento.id.desc())
+    )

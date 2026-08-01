@@ -45,7 +45,7 @@
             </td>
             <td><span class="badge {% if item.activo %}badgeActive{% else %}badgeInactive{% endif %}">{{ 'ACTIVO' if item.activo else 'INACTIVO' }}</span></td>
             <td class="actionCell">
-              {{ actions.render('/usuarios', item.id, list_qs, '¿Eliminar usuario?', puede_editar, puede_eliminar) }}
+              {{ actions.render('/usuarios', item.id, list_qs, '¿Desactivar usuario?', puede_editar, puede_eliminar) }}
             </td>
           </tr>
           {% else %}
@@ -65,7 +65,10 @@
     <label>Usuario (login) <input name="usuario" required autocomplete="off" placeholder="ej: operaciones"></label>
     <label>Nombre completo <input name="nombre" required></label>
     <label>Correo electrónico <input name="correo" type="email" required autocomplete="email" placeholder="correo@ejemplo.com"></label>
-    <label>Contraseña <input name="clave" type="password" required autocomplete="new-password"></label>
+    <label>Contraseña
+      <input name="clave" type="password" required autocomplete="new-password" minlength="8">
+      <small>Mínimo 8 caracteres, mayúscula, minúscula, número y especial.</small>
+    </label>
     <label>Rol
       <select name="role" required>
         <option value="administrador_sistema">Administrador del Sistema</option>
@@ -110,7 +113,10 @@
     </label>
     <label>Nombre completo <input name="nombre" value="{{ edit_item.nombre }}" required></label>
     <label>Correo electrónico <input name="correo" type="email" value="{{ edit_item.correo or '' }}" required autocomplete="email"></label>
-    <label>Nueva contraseña <input name="clave" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiar"></label>
+    <label>Nueva contraseña
+      <input name="clave" type="password" autocomplete="new-password" minlength="8" placeholder="Dejar vacío para no cambiar">
+      <small>Mínimo 8 caracteres, mayúscula, minúscula, número y especial.</small>
+    </label>
     <label>Rol
       <select name="role" required>
         <option value="administrador_sistema" {% if edit_item.role == 'administrador_sistema' %}selected{% endif %}>Administrador del Sistema</option>
