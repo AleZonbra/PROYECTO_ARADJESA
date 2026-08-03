@@ -1,4 +1,5 @@
 from datetime import datetime
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
@@ -45,11 +46,13 @@ def _ctx(request: Request, **extra):
 def _redirect(path: str, msg: str = "", error: str = ""):
     q = []
     if msg:
-        q.append(f"msg={msg}")
+        q.append(f"msg={quote(msg, safe='+')}")
     if error:
-        q.append(f"error={error}")
-    suffix = f"?{'&'.join(q)}" if q else ""
-    return RedirectResponse(url=f"{path}{suffix}", status_code=303)
+        q.append(f"error={quote(error, safe='+')}")
+    if not q:
+        return RedirectResponse(url=path, status_code=303)
+    sep = "&" if "?" in path else "?"
+    return RedirectResponse(url=f"{path}{sep}{'&'.join(q)}", status_code=303)
 
 
 def _filter_items(items, search: str, fields):
@@ -91,11 +94,11 @@ def _proveedores_activos(db: Session):
     return db.query(Proveedor).filter(Proveedor.estado == "ACTIVO").order_by(Proveedor.nombre).all()
 
 
-def _validar_proveedor(db: Session, proveedor_id: int):
+def _validar_proveedor(db: Session, proveedor_id: int, permitir_inactivo: bool = False):
     proveedor = db.get(Proveedor, proveedor_id)
     if not proveedor:
         return None, "Proveedor+no+encontrado"
-    if (proveedor.estado or "").upper() != "ACTIVO":
+    if not permitir_inactivo and (proveedor.estado or "").upper() != "ACTIVO":
         return None, "El+proveedor+seleccionado+no+está+activo"
     return proveedor, None
 
@@ -549,6 +552,16 @@ def productos_list(request: Request, db: Session = Depends(get_db)):
     view_item = _get_producto(db, request.query_params.get("ver"))
     lote_item = _get_producto(db, request.query_params.get("lote"))
     proveedores = _proveedores_activos(db)
+    # En edición, incluir el proveedor actual aunque esté inactivo
+    if edit_item and edit_item.proveedor_id and not any(p.id == edit_item.proveedor_id for p in proveedores):
+        actual = db.get(Proveedor, edit_item.proveedor_id)
+        if actual:
+            proveedores = [actual] + list(proveedores)
+    proveedor_sel = request.query_params.get("proveedor_id", "")
+    show_create = request.query_params.get("nuevo") == "1"
+    show_nuevo_proveedor = show_create and (
+        request.query_params.get("nuevo_proveedor") == "1" or len(proveedores) == 0
+    )
     return request.app.state.templates.TemplateResponse(
         "productos.html",
         _ctx(
@@ -561,7 +574,9 @@ def productos_list(request: Request, db: Session = Depends(get_db)):
             view_item=view_item,
             lote_item=lote_item,
             proveedores=proveedores,
-            show_create=request.query_params.get("nuevo") == "1",
+            proveedor_seleccionado=int(proveedor_sel) if proveedor_sel.isdigit() else None,
+            show_create=show_create,
+            show_nuevo_proveedor=show_nuevo_proveedor,
             msg=request.query_params.get("msg", ""),
             error=request.query_params.get("error", ""),
         ),
@@ -587,27 +602,74 @@ def productos_crear(
     fecha_expiracion: str = Form(""),
     proveedor_id: int = Form(...),
     stock_minimo: int = Form(0),
+    estado: str = Form("ACTIVO"),
     db: Session = Depends(get_db),
 ):
     _, error = _validar_proveedor(db, proveedor_id)
     if error:
-        return _redirect("/productos", error=error)
+        return _redirect("/productos?nuevo=1", error=error)
     nombre = producto.strip()
+    lote = serial_lote.strip()
+    if not nombre or not lote:
+        return _redirect("/productos?nuevo=1", error="Producto+y+lote+son+obligatorios")
+    duplicado = (
+        db.query(Producto)
+        .filter(Producto.producto == nombre, Producto.serial_lote == lote, Producto.estado == "ACTIVO")
+        .first()
+    )
+    if duplicado:
+        return _redirect("/productos?nuevo=1", error="Ya+existe+un+producto+activo+con+ese+lote")
     minimo = stock_minimo if stock_minimo > 0 else _stock_minimo_sugerido(db, nombre)
+    estado_val = estado if estado in ("ACTIVO", "INACTIVO") else "ACTIVO"
     db.add(
         Producto(
             producto=nombre,
-            serial_lote=serial_lote.strip(),
-            cantidad=cantidad,
+            serial_lote=lote,
+            cantidad=max(0, cantidad),
             fecha_produccion=fecha_produccion.strip(),
             fecha_expiracion=fecha_expiracion.strip(),
             proveedor_id=proveedor_id,
             stock_minimo=minimo,
-            estado="ACTIVO",
+            estado=estado_val,
         )
     )
     db.commit()
     return _redirect("/productos", msg="Producto+creado+correctamente")
+
+
+@protected_router.post("/productos/proveedor-rapido", dependencies=[Depends(requiere_modulo("productos"))])
+def productos_proveedor_rapido(
+    nombre: str = Form(...),
+    telefono: str = Form(...),
+    empresa: str = Form(...),
+    rif: str = Form(""),
+    categoria: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    """Crea un proveedor activo desde el flujo de nuevo producto y vuelve al formulario."""
+    nombre_limpio = nombre.strip()
+    telefono_limpio = telefono.strip()
+    empresa_limpia = empresa.strip()
+    if not nombre_limpio or not telefono_limpio or not empresa_limpia:
+        return _redirect(
+            "/productos?nuevo=1&nuevo_proveedor=1",
+            error="Nombre,+teléfono+y+empresa+son+obligatorios",
+        )
+    proveedor = Proveedor(
+        nombre=nombre_limpio,
+        telefono=telefono_limpio,
+        empresa=empresa_limpia,
+        rif=rif.strip(),
+        categoria=categoria.strip(),
+        estado="ACTIVO",
+    )
+    db.add(proveedor)
+    db.commit()
+    db.refresh(proveedor)
+    return _redirect(
+        f"/productos?nuevo=1&proveedor_id={proveedor.id}",
+        msg="Proveedor+creado.+Continúa+con+el+producto",
+    )
 
 
 @protected_router.post("/productos/agregar-lote", dependencies=[Depends(requiere_modulo("productos"))])
@@ -669,16 +731,17 @@ def productos_actualizar(
     item = db.get(Producto, item_id)
     if not item:
         return _redirect("/productos", error="Producto+no+encontrado")
-    _, error = _validar_proveedor(db, proveedor_id)
+    permitir_inactivo = proveedor_id == item.proveedor_id
+    _, error = _validar_proveedor(db, proveedor_id, permitir_inactivo=permitir_inactivo)
     if error:
-        return _redirect("/productos", error=error)
+        return _redirect(f"/productos?edit={item_id}", error=error)
     item.producto = producto.strip()
     item.serial_lote = serial_lote.strip()
-    item.cantidad = cantidad
+    item.cantidad = max(0, cantidad)
     item.fecha_produccion = fecha_produccion.strip()
     item.fecha_expiracion = fecha_expiracion.strip()
     item.proveedor_id = proveedor_id
-    item.stock_minimo = stock_minimo if stock_minimo > 0 else 20
+    item.stock_minimo = stock_minimo if stock_minimo > 0 else _stock_minimo_sugerido(db, item.producto)
     item.estado = estado if estado in ("ACTIVO", "INACTIVO") else "ACTIVO"
     db.commit()
     return _redirect("/productos", msg="Producto+actualizado")

@@ -38,12 +38,12 @@
             <td>{{ item.stock_minimo if item.stock_minimo is not none else '—' }}</td>
             <td>{{ item.fecha_produccion }}</td>
             <td>{{ item.fecha_expiracion }}</td>
-            <td><span class="badge {% if item.estado == 'ACTIVO' or not item.estado %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado or 'ACTIVO' }}</span></td>
+            <td><span class="badge {% if (item.estado or 'ACTIVO') == 'ACTIVO' %}badgeActive{% else %}badgeInactive{% endif %}">{{ item.estado or 'ACTIVO' }}</span></td>
             <td class="actionCell">
-              {% if puede_crear %}
+              {% if puede_crear and (item.estado or 'ACTIVO') == 'ACTIVO' %}
               <a href="/productos?lote={{ item.id }}{{ list_qs }}">+ Lote</a>
               {% endif %}
-              {{ actions.render('/productos', item.id, list_qs, '¿Desactivar producto?', puede_editar, puede_eliminar) }}
+              {{ actions.render('/productos', item.id, list_qs, '¿Desactivar producto?', puede_editar, puede_eliminar and (item.estado or 'ACTIVO') == 'ACTIVO') }}
             </td>
           </tr>
           {% else %}
@@ -59,17 +59,38 @@
 {% if show_create %}
 <div class="modalOverlay">
   <div class="modal">
+    {% if show_nuevo_proveedor %}
+    <h2>Nuevo proveedor</h2>
+    <p class="panelHighlight">Registra el proveedor y luego continúa con el producto.</p>
+    <form method="post" action="/productos/proveedor-rapido" class="formGrid">
+      <label>Nombre <input name="nombre" required></label>
+      <label>RIF <input name="rif" placeholder="J-00000000-0"></label>
+      <label>Teléfono <input name="telefono" required></label>
+      <label>Empresa <input name="empresa" required></label>
+      <label>Categoría <input name="categoria" placeholder="Alimentos, Logística..."></label>
+      <div class="modalActions">
+        {% if proveedores %}
+        <a href="/productos?nuevo=1" class="buttonSecondary">Volver al producto</a>
+        {% else %}
+        <a href="/productos" class="buttonSecondary">Cancelar</a>
+        {% endif %}
+        <button type="submit" class="buttonPrimary">Guardar proveedor</button>
+      </div>
+    </form>
+    {% else %}
     <h2>Nuevo producto</h2>
-    {% if proveedores %}
     <form method="post" action="/productos/crear" class="formGrid">
       <label>Producto <input name="producto" required></label>
       <label>Lote <input name="serial_lote" required></label>
       <label>Proveedor (entrada)
         <select name="proveedor_id" required>
           {% for proveedor in proveedores %}
-          <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+          <option value="{{ proveedor.id }}" {% if proveedor_seleccionado == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}{% if proveedor.rif %} · {{ proveedor.rif }}{% endif %}</option>
           {% endfor %}
         </select>
+        {% if puede_crear %}
+        <small><a href="/productos?nuevo=1&amp;nuevo_proveedor=1">+ Agregar proveedor</a></small>
+        {% endif %}
       </label>
       <label>Cantidad <input name="cantidad" type="number" min="0" value="0" required></label>
       <label>Stock mínimo
@@ -78,17 +99,17 @@
       </label>
       <label>Fecha producción <input name="fecha_produccion" placeholder="dd/mm/aaaa"></label>
       <label>Fecha expiración <input name="fecha_expiracion" placeholder="dd/mm/aaaa"></label>
+      <label>Estado
+        <select name="estado">
+          <option value="ACTIVO" selected>ACTIVO</option>
+          <option value="INACTIVO">INACTIVO</option>
+        </select>
+      </label>
       <div class="modalActions">
         <a href="/productos" class="buttonSecondary">Cancelar</a>
         <button type="submit" class="buttonPrimary">Guardar</button>
       </div>
     </form>
-    {% else %}
-    <p class="panelHighlight">Debe registrar al menos un proveedor activo antes de ingresar productos al inventario.</p>
-    <div class="modalActions">
-      <a href="/productos" class="buttonSecondary">Cerrar</a>
-      <a href="/proveedores?nuevo=1" class="buttonPrimary">Ir a proveedores</a>
-    </div>
     {% endif %}
   </div>
 </div>
@@ -162,7 +183,7 @@
       <label>Proveedor (entrada)
         <select name="proveedor_id" required>
           {% for proveedor in proveedores %}
-          <option value="{{ proveedor.id }}" {% if edit_item.proveedor_id == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}</option>
+          <option value="{{ proveedor.id }}" {% if edit_item.proveedor_id == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}{% if proveedor.estado and proveedor.estado != 'ACTIVO' %} ({{ proveedor.estado }}){% endif %}</option>
           {% endfor %}
         </select>
       </label>
@@ -175,8 +196,8 @@
       <label>Fecha expiración <input name="fecha_expiracion" value="{{ edit_item.fecha_expiracion }}"></label>
       <label>Estado
         <select name="estado">
-          <option {% if edit_item.estado == 'ACTIVO' or not edit_item.estado %}selected{% endif %}>ACTIVO</option>
-          <option {% if edit_item.estado == 'INACTIVO' %}selected{% endif %}>INACTIVO</option>
+          <option value="ACTIVO" {% if (edit_item.estado or 'ACTIVO') == 'ACTIVO' %}selected{% endif %}>ACTIVO</option>
+          <option value="INACTIVO" {% if edit_item.estado == 'INACTIVO' %}selected{% endif %}>INACTIVO</option>
         </select>
       </label>
       <div class="modalActions">
