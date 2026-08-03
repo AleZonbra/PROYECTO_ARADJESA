@@ -214,24 +214,117 @@ def seed_movimientos(db: Session):
 
 def sincronizar_campos_existentes(db: Session):
     """Completa columnas nuevas en datos ya existentes sin romper registros."""
-    for vendedor in db.query(Vendedor).all():
+    zonas = ("NORTE", "CENTRO", "SUR", "ESTE", "OESTE")
+    categorias_por_empresa = {
+        "ALIMENTOS DEL VALLE": ("J-40000001-1", "Alimentos"),
+        "LA GRANJA": ("J-40000002-2", "Alimentos"),
+        "IMPORTNAC": ("J-40000003-3", "Importación"),
+        "PROCEN": ("J-40000004-4", "Abarrotes"),
+        "SUMIND": ("J-40000005-5", "Industrial"),
+        "EL PROGRESO": ("J-40000006-6", "Abarrotes"),
+        "MIRANDA DIST": ("J-40000007-7", "Distribución"),
+        "COMUNIDA": ("J-40000008-8", "Comercial"),
+        "GST": ("J-40000009-9", "Suministros"),
+        "LOGABASTO": ("J-40000010-0", "Logística"),
+        "METRONICA": ("J-40000011-1", "Industrial"),
+        "ARADJESA": ("J-409055221", "Distribución"),
+    }
+    categorias_por_nombre = {
+        "DISTRIBUIDORA ALIMENTOS C.A.": ("J-40000001-1", "Alimentos"),
+        "COMERCIAL LA GRANJA": ("J-40000002-2", "Alimentos"),
+        "IMPORTADORA NACIONAL": ("J-40000003-3", "Importación"),
+        "PROVEEDORA DEL CENTRO": ("J-40000004-4", "Abarrotes"),
+        "SUMINISTROS INDUSTRIALES": ("J-40000005-5", "Industrial"),
+        "ALMACÉN EL PROGRESO": ("J-40000006-6", "Abarrotes"),
+        "DISTRIBUCIONES MIRANDA": ("J-40000007-7", "Distribución"),
+        "COMERCIALIZADORA UNIDA": ("J-40000008-8", "Comercial"),
+        "GRUPO SUMINISTRO TOTAL": ("J-40000009-9", "Suministros"),
+        "LOGÍSTICA Y ABASTO": ("J-40000010-0", "Logística"),
+        "PROVEEDORA METRÓNICA": ("J-40000011-1", "Industrial"),
+        "DISTRIBUIDORA ARADJESA": ("J-409055221", "Distribución"),
+    }
+
+    vendedores = db.query(Vendedor).order_by(Vendedor.id).all()
+    for idx, vendedor in enumerate(vendedores):
         if not (vendedor.area_desempeno or "").strip() and (vendedor.trabajos_realizados or "").strip():
             vendedor.area_desempeno = vendedor.trabajos_realizados
-        if vendedor.meta_minima is None:
-            vendedor.meta_minima = 0
-    for cliente in db.query(Cliente).all():
+        if not (vendedor.trabajos_realizados or "").strip() and (vendedor.area_desempeno or "").strip():
+            vendedor.trabajos_realizados = vendedor.area_desempeno
+        if vendedor.meta_minima is None or vendedor.meta_minima == 0:
+            vendedor.meta_minima = 50 + (idx % 5) * 10
+        if not (vendedor.estado or "").strip():
+            vendedor.estado = "ACTIVO"
+
+    proveedores = db.query(Proveedor).order_by(Proveedor.id).all()
+    for proveedor in proveedores:
+        if not (proveedor.estado or "").strip():
+            proveedor.estado = "ACTIVO"
+        if (proveedor.rif or "").strip() and (proveedor.categoria or "").strip():
+            continue
+        datos = categorias_por_empresa.get((proveedor.empresa or "").strip().upper())
+        if not datos:
+            datos = categorias_por_nombre.get((proveedor.nombre or "").strip().upper())
+        if not datos:
+            # fallback determinístico para registros de prueba u otros
+            datos = (f"J-40{proveedor.id:06d}-{proveedor.id % 10}", "General")
+        if not (proveedor.rif or "").strip():
+            proveedor.rif = datos[0]
+        if not (proveedor.categoria or "").strip():
+            proveedor.categoria = datos[1]
+
+    vendedor_ids = [v.id for v in vendedores if (v.estado or "ACTIVO") == "ACTIVO"] or [v.id for v in vendedores]
+    for idx, cliente in enumerate(db.query(Cliente).order_by(Cliente.id).all()):
         if not (cliente.estado or "").strip():
             cliente.estado = "ACTIVO"
-    for producto in db.query(Producto).all():
+        if not (cliente.rif or "").strip():
+            cliente.rif = f"J-41{100000 + idx}"
+        if not (cliente.zona or "").strip():
+            cliente.zona = zonas[idx % len(zonas)]
+        if not cliente.vendedor_id and vendedor_ids:
+            cliente.vendedor_id = vendedor_ids[idx % len(vendedor_ids)]
+
+    proveedores_activos = [p for p in proveedores if (p.estado or "ACTIVO") == "ACTIVO" and not (p.nombre or "").startswith("PROV TEST")]
+    if not proveedores_activos:
+        proveedores_activos = [p for p in proveedores if (p.estado or "ACTIVO") == "ACTIVO"]
+
+    for idx, producto in enumerate(db.query(Producto).order_by(Producto.id).all()):
         if not (producto.estado or "").strip():
             producto.estado = "ACTIVO"
-        if producto.stock_minimo is None:
-            producto.stock_minimo = 20
-    for movimiento in db.query(Movimiento).all():
+        if producto.stock_minimo is None or producto.stock_minimo <= 0:
+            producto.stock_minimo = 15 + (idx % 6) * 5
+        # Redistribuir proveedor solo si el actual es nulo
+        if not producto.proveedor_id and proveedores_activos:
+            producto.proveedor_id = proveedores_activos[idx % len(proveedores_activos)].id
+        # Si todos apuntan al mismo y hay varios proveedores demo, equilibrar los originales
+        elif (
+            proveedores_activos
+            and len(proveedores_activos) > 1
+            and producto.proveedor_id == proveedores_activos[0].id
+            and not (producto.producto or "").startswith("PROD TEST")
+        ):
+            # solo reasignar si aún está concentrado en el primero histórico
+            pass
+
+    # Equilibrar proveedores en productos demo (no de prueba) cuando hay concentración excesiva
+    productos_demo = [
+        p
+        for p in db.query(Producto).order_by(Producto.id).all()
+        if not (p.producto or "").startswith("PROD TEST") and (p.estado or "ACTIVO") == "ACTIVO"
+    ]
+    if proveedores_activos and len(proveedores_activos) > 1 and productos_demo:
+        for idx, producto in enumerate(productos_demo):
+            producto.proveedor_id = proveedores_activos[idx % len(proveedores_activos)].id
+
+    for idx, movimiento in enumerate(db.query(Movimiento).order_by(Movimiento.id).all()):
         if not (movimiento.estado or "").strip():
             movimiento.estado = "ACTIVO"
         if not (movimiento.fecha_pedido or "").strip():
             movimiento.fecha_pedido = movimiento.fecha_salida
+        if (movimiento.estado_despacho or "").upper() == "ENTREGADO" and not (movimiento.fecha_entrega or "").strip():
+            movimiento.fecha_entrega = movimiento.fecha_salida
+        if not (movimiento.numero_factura or "").strip():
+            movimiento.numero_factura = f"FAC-2026-{movimiento.id:04d}"
+
     db.commit()
 
 
