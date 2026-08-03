@@ -22,6 +22,25 @@ def _parse_fecha(fecha_str: str | None):
         return datetime.max
 
 
+def _parse_fecha_strict(fecha_str: str, campo: str) -> datetime:
+    try:
+        return datetime.strptime(fecha_str.strip(), "%d/%m/%Y")
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"La {campo} es inválida. Use el formato dd/mm/aaaa") from exc
+
+
+def _validar_fechas_despacho(fecha_pedido: str, fecha_entrega: str | None) -> None:
+    """La entrega no puede ser anterior al pedido."""
+    pedido_dt = _parse_fecha_strict(fecha_pedido, "fecha de pedido")
+    if not (fecha_entrega or "").strip():
+        return
+    entrega_dt = _parse_fecha_strict(fecha_entrega, "fecha de entrega")
+    if entrega_dt < pedido_dt:
+        raise ValueError(
+            "La fecha de entrega no puede ser anterior a la fecha de pedido"
+        )
+
+
 def _producto_activo(producto: Producto | None) -> bool:
     return bool(producto and (producto.estado or "ACTIVO") == "ACTIVO")
 
@@ -61,13 +80,23 @@ def crear_movimiento(
     if not _producto_activo(producto_base):
         raise StockInsuficienteError("El producto seleccionado no está activo")
 
-    fecha_pedido_val = (fecha_pedido or "").strip() or _fecha_hoy()
+    fecha_pedido_raw = (fecha_pedido or "").strip()
+    if fecha_pedido_raw:
+        _parse_fecha_strict(fecha_pedido_raw, "fecha de pedido")
+        fecha_pedido_val = fecha_pedido_raw
+    else:
+        fecha_pedido_val = _fecha_hoy()
+
     fecha_entrega_val = (fecha_entrega or "").strip()
     factura_val = (numero_factura or "").strip()
     estado = estado_despacho or "POR ENTREGAR"
 
     if estado == "ENTREGADO" and not fecha_entrega_val:
         fecha_entrega_val = _fecha_hoy()
+    if fecha_entrega_val:
+        _parse_fecha_strict(fecha_entrega_val, "fecha de entrega")
+
+    _validar_fechas_despacho(fecha_pedido_val, fecha_entrega_val)
 
     creados: list[Movimiento] = []
 
@@ -142,6 +171,23 @@ def actualizar_movimiento(
     if cantidad <= 0:
         raise StockInsuficienteError("La cantidad debe ser mayor a cero")
 
+    estado = estado_despacho or "POR ENTREGAR"
+    fecha_pedido_raw = (fecha_pedido or "").strip()
+    if fecha_pedido_raw:
+        _parse_fecha_strict(fecha_pedido_raw, "fecha de pedido")
+        fecha_pedido_val = fecha_pedido_raw
+    else:
+        fecha_pedido_val = mov.fecha_pedido or mov.fecha_salida or _fecha_hoy()
+        _parse_fecha_strict(fecha_pedido_val, "fecha de pedido")
+
+    fecha_entrega_val = (fecha_entrega or "").strip()
+    if estado == "ENTREGADO" and not fecha_entrega_val:
+        fecha_entrega_val = _fecha_hoy()
+    if fecha_entrega_val:
+        _parse_fecha_strict(fecha_entrega_val, "fecha de entrega")
+
+    _validar_fechas_despacho(fecha_pedido_val, fecha_entrega_val)
+
     producto_anterior = db.get(Producto, mov.producto_id)
     if producto_anterior:
         producto_anterior.cantidad += mov.cantidad
@@ -151,18 +197,13 @@ def actualizar_movimiento(
         db.rollback()
         raise StockInsuficienteError("Inventario insuficiente para actualizar el despacho")
 
-    estado = estado_despacho or "POR ENTREGAR"
-    fecha_entrega_val = (fecha_entrega or "").strip()
-    if estado == "ENTREGADO" and not fecha_entrega_val:
-        fecha_entrega_val = _fecha_hoy()
-
     producto_nuevo.cantidad -= cantidad
     mov.producto_id = producto_id
     mov.vendedor_id = vendedor_id
     mov.cliente_id = cliente_id
     mov.cantidad = cantidad
     mov.estado_despacho = estado
-    mov.fecha_pedido = (fecha_pedido or "").strip() or mov.fecha_pedido or mov.fecha_salida
+    mov.fecha_pedido = fecha_pedido_val
     mov.fecha_entrega = fecha_entrega_val or None
     mov.numero_factura = (numero_factura or "").strip() or None
     db.commit()

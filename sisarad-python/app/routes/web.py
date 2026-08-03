@@ -1296,7 +1296,7 @@ def despachos_crear(
         if isinstance(resultado, list) and len(resultado) > 1:
             msg = f"Despacho+registrado+en+{len(resultado)}+lotes+(FIFO/PEPS)"
         return _redirect("/despachos", msg=msg)
-    except StockInsuficienteError as e:
+    except (StockInsuficienteError, ValueError) as e:
         return _redirect("/despachos", error=str(e).replace(" ", "+"))
 
 

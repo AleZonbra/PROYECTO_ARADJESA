@@ -63,7 +63,7 @@
 <div class="modalOverlay"><div class="modal">
   <h2>Nuevo despacho</h2>
   <p class="accountSectionHint">El despacho usa FIFO/PEPS: descuenta primero los lotes más antiguos del mismo producto</p>
-  <form method="post" action="/despachos/crear" class="formGrid">
+  <form method="post" action="/despachos/crear" class="formGrid" data-validate-fechas-despacho>
     <label>Producto
       <select name="producto_id" required>
         {% for p in productos %}<option value="{{ p.id }}">{{ p.producto }} · Lote {{ p.serial_lote }} · {{ p.cantidad }} uds · Prod. {{ p.fecha_produccion or 's/f' }}</option>{% endfor %}
@@ -80,8 +80,9 @@
       </select>
     </label>
     <label>Cantidad <input name="cantidad" type="number" min="1" value="1" required></label>
-    <label>Fecha pedido <input name="fecha_pedido" placeholder="dd/mm/aaaa"></label>
-    <label>Fecha entrega <input name="fecha_entrega" placeholder="dd/mm/aaaa"></label>
+    <label>Fecha pedido <input name="fecha_pedido" placeholder="dd/mm/aaaa" autocomplete="off"></label>
+    <label>Fecha entrega <input name="fecha_entrega" placeholder="dd/mm/aaaa" autocomplete="off"></label>
+    <p class="accountSectionHint">La fecha de entrega no puede ser anterior a la fecha de pedido.</p>
     <label>Nº factura <input name="numero_factura"></label>
     <label>Estado
       <select name="estado_despacho">
@@ -123,7 +124,7 @@
 <div class="modalOverlay"><div class="modal">
   <h2>Editar despacho</h2>
   <p class="accountSectionHint">El despacho usa FIFO/PEPS: descuenta primero los lotes más antiguos del mismo producto</p>
-  <form method="post" action="/despachos/{{ edit_item.id }}/actualizar" class="formGrid">
+  <form method="post" action="/despachos/{{ edit_item.id }}/actualizar" class="formGrid" data-validate-fechas-despacho>
     <label>Producto
       <select name="producto_id" required>
         {% for p in productos %}<option value="{{ p.id }}" {% if p.id == edit_item.producto_id %}selected{% endif %}>{{ p.producto }} · Lote {{ p.serial_lote }} · {{ p.cantidad }} uds · Prod. {{ p.fecha_produccion or 's/f' }}</option>{% endfor %}
@@ -140,8 +141,9 @@
       </select>
     </label>
     <label>Cantidad <input name="cantidad" type="number" min="1" value="{{ edit_item.cantidad }}" required></label>
-    <label>Fecha pedido <input name="fecha_pedido" value="{{ edit_item.fecha_pedido or '' }}" placeholder="dd/mm/aaaa"></label>
-    <label>Fecha entrega <input name="fecha_entrega" value="{{ edit_item.fecha_entrega or '' }}" placeholder="dd/mm/aaaa"></label>
+    <label>Fecha pedido <input name="fecha_pedido" value="{{ edit_item.fecha_pedido or '' }}" placeholder="dd/mm/aaaa" autocomplete="off"></label>
+    <label>Fecha entrega <input name="fecha_entrega" value="{{ edit_item.fecha_entrega or '' }}" placeholder="dd/mm/aaaa" autocomplete="off"></label>
+    <p class="accountSectionHint">La fecha de entrega no puede ser anterior a la fecha de pedido.</p>
     <label>Nº factura <input name="numero_factura" value="{{ edit_item.numero_factura or '' }}"></label>
     <label>Estado
       <select name="estado_despacho">
@@ -153,4 +155,39 @@
   </form>
 </div></div>
 {% endif %}
+<script>
+(function () {
+  function parseFecha(valor) {
+    var m = String(valor || "").trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return null;
+    var d = Number(m[1]), mo = Number(m[2]) - 1, y = Number(m[3]);
+    var dt = new Date(y, mo, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
+    return dt;
+  }
+  document.querySelectorAll("form[data-validate-fechas-despacho]").forEach(function (form) {
+    form.addEventListener("submit", function (ev) {
+      var pedido = (form.querySelector('[name="fecha_pedido"]') || {}).value || "";
+      var entrega = (form.querySelector('[name="fecha_entrega"]') || {}).value || "";
+      if (pedido && !parseFecha(pedido)) {
+        ev.preventDefault();
+        alert("La fecha de pedido es inválida. Use el formato dd/mm/aaaa");
+        return;
+      }
+      if (entrega && !parseFecha(entrega)) {
+        ev.preventDefault();
+        alert("La fecha de entrega es inválida. Use el formato dd/mm/aaaa");
+        return;
+      }
+      if (pedido && entrega) {
+        var p = parseFecha(pedido), e = parseFecha(entrega);
+        if (p && e && e < p) {
+          ev.preventDefault();
+          alert("La fecha de entrega no puede ser anterior a la fecha de pedido");
+        }
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}
